@@ -8,6 +8,7 @@ import 'package:provider/provider.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
+  // good
   runApp(const MyApp());
 }
 
@@ -20,7 +21,7 @@ class MyApp extends StatelessWidget {
       value: AuthService().user,
       initialData: null,
       child: MaterialApp(
-        home: Wrapper(),  // Ensure Wrapper widget is correctly implemented
+        home: Wrapper(),  // Ensure Wrapper widget is correctly implement
       ),
     );
   }
