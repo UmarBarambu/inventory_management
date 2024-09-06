@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "852562845955",
+    "project_id": "fir-setup-f59d1",
+    "storage_bucket": "fir-setup-f59d1.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:852562845955:android:4e985b90c90fb4844d4936",
+        "android_client_info": {
+          "package_name": "com.example.inventory_management"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCskZyvjWUG-nDX7tVWCgtWZViDekSxWds"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
