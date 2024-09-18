@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:inventory_management/models/vendor.dart'; // Import the Vendor model
+import 'package:inventory_management/screens/home/activities/add_product.dart';
 import 'package:inventory_management/services/vendorDatabase.dart';
 import 'package:inventory_management/shared/constant.dart'; // Import the VendorDatabase service
 
 class AddVendor extends StatefulWidget {
-  const AddVendor({super.key});
+  final bool isFromDrawer;
+  const AddVendor({super.key, this.isFromDrawer = true});
 
   @override
   State<AddVendor> createState() => _AddVendorState();
@@ -16,7 +18,8 @@ class _AddVendorState extends State<AddVendor> {
   final _contactController = TextEditingController();
   final _addressController = TextEditingController();
 
-  final VendorDatabase _vendorDatabase = VendorDatabase(); // Instance of VendorDatabase
+  final VendorDatabase _vendorDatabase =
+      VendorDatabase(); // Instance of VendorDatabase
 
   void _submitForm() async {
     print("Button pressed"); // Debug print
@@ -32,9 +35,8 @@ class _AddVendorState extends State<AddVendor> {
           id: id,
           name: _nameController.text,
           contact: _contactController.text,
-          address: _addressController.text, 
-          createdAt: DateTime.now(), 
-     
+          address: _addressController.text,
+          createdAt: DateTime.now(),
         );
 
         // Add the vendor to the database
@@ -51,6 +53,8 @@ class _AddVendorState extends State<AddVendor> {
         _nameController.clear();
         _contactController.clear();
         _addressController.clear();
+
+        _next();
       } catch (e) {
         print("Error: $e"); // Debug print
         ScaffoldMessenger.of(context).showSnackBar(
@@ -59,6 +63,15 @@ class _AddVendorState extends State<AddVendor> {
       }
     } else {
       print("Form is not valid"); // Debug print
+    }
+  }
+
+  void _next() {
+    if (widget.isFromDrawer) {
+      Navigator.of(context).pop();
+    } else {
+      Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (context) => const AddProduct()));
     }
   }
 
@@ -92,7 +105,6 @@ class _AddVendorState extends State<AddVendor> {
                   },
                 ),
                 const SizedBox(height: 20),
-                
                 const Text(
                   'Contact',
                   style: TextStyle(fontSize: 20, fontWeight: FontWeight.w400),
@@ -108,7 +120,6 @@ class _AddVendorState extends State<AddVendor> {
                   },
                 ),
                 const SizedBox(height: 20),
-                
                 const Text(
                   'Address',
                   style: TextStyle(fontSize: 20, fontWeight: FontWeight.w400),

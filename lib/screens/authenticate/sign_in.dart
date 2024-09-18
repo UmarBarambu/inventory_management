@@ -1,4 +1,8 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:inventory_management/screens/home/homeScreen/homeScreen.dart';
+import 'package:inventory_management/screens/wrapper.dart';
 import 'package:inventory_management/services/auth.dart';
 import 'package:inventory_management/shared/constant.dart';
 
@@ -16,6 +20,7 @@ class _SignInState extends State<SignIn> {
   String password = '';
   String error = '';
   bool isLoading = false;
+  bool _isAdminRegistered = false;
 
   final AuthService _service = AuthService();
   final _formKey = GlobalKey<FormState>();
@@ -36,29 +41,30 @@ class _SignInState extends State<SignIn> {
           ),
         ],
       ),
-     body: isLoading
-    ? Center(
-        child: CircularProgressIndicator(
-          valueColor: AlwaysStoppedAnimation<Color>(Colors.lightBlue!),
-        ),
-      )
-    : SingleChildScrollView(
-              padding: const EdgeInsets.symmetric(vertical: 20.0, horizontal: 50.0),
+      body: isLoading
+          ? Center(
+              child: CircularProgressIndicator(
+                valueColor: AlwaysStoppedAnimation<Color>(Colors.lightBlue!),
+              ),
+            )
+          : SingleChildScrollView(
+              padding:
+                  const EdgeInsets.symmetric(vertical: 20.0, horizontal: 50.0),
               child: Form(
                 key: _formKey,
                 child: Column(
                   children: [
                     const Text(
-                        'StockMate',
-                        style: TextStyle(
-                          fontSize: 32.0,
-                          fontWeight: FontWeight.bold,
-                          
-                        ),
+                      'StockMate',
+                      style: TextStyle(
+                        fontSize: 32.0,
+                        fontWeight: FontWeight.bold,
                       ),
+                    ),
                     const SizedBox(height: 30.0),
                     TextFormField(
-                      decoration: textInputDecoration.copyWith(hintText: 'Email'),
+                      decoration:
+                          textInputDecoration.copyWith(hintText: 'Email'),
                       validator: (val) {
                         if (val == null || val.isEmpty) {
                           return 'Enter an email';
@@ -79,7 +85,8 @@ class _SignInState extends State<SignIn> {
                     ),
                     const SizedBox(height: 20.0),
                     TextFormField(
-                      decoration: textInputDecoration.copyWith(hintText: 'Password'),
+                      decoration:
+                          textInputDecoration.copyWith(hintText: 'Password'),
                       validator: (val) {
                         if (val == null || val.length < 6) {
                           return 'Enter a password with at least 6 characters';
@@ -98,26 +105,7 @@ class _SignInState extends State<SignIn> {
                     const SizedBox(height: 20.0),
                     ElevatedButton(
                       onPressed: () async {
-                        if (_formKey.currentState?.validate() ?? false) {
-                          if (mounted) {
-                            setState(() {
-                              isLoading = true;
-                              error = '';
-                            });
-                          }
-                          dynamic result = await _service.signInWithEmailAndPassword(email, password);
-                          if (mounted) {
-                            setState(() {
-                              isLoading = false;
-                              if (result is String) {
-                                error = result;
-                              } else {
-                                // Navigate to the home page or dashboard if sign-in is successful
-                                Navigator.of(context).pushReplacementNamed('/home');
-                              }
-                            });
-                          }
-                        }
+                        await _login();
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.blue,
@@ -137,5 +125,29 @@ class _SignInState extends State<SignIn> {
               ),
             ),
     );
+  }
+
+  Future<void> _login() async {
+    if (_formKey.currentState?.validate() ?? false) {
+      if (mounted) {
+        setState(() {
+          isLoading = true;
+          error = '';
+        });
+      }
+      dynamic result =
+          await _service.signInWithEmailAndPassword(email, password);
+      if (mounted) {
+        setState(() {
+          isLoading = false;
+          if (result is String) {
+            error = result;
+          } else {
+            Navigator.of(context).pushReplacement(
+                MaterialPageRoute(builder: (context) => const Wrapper()));
+          }
+        });
+      }
+    }
   }
 }

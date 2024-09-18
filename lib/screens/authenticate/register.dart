@@ -6,7 +6,8 @@ import 'package:inventory_management/services/auth.dart';
 import 'package:inventory_management/shared/constant.dart';
 
 class Register extends StatefulWidget {
-  final VoidCallback toggleView; // Callback to switch between Register and SignIn
+  final VoidCallback
+      toggleView; // Callback to switch between Register and SignIn
 
   const Register({required this.toggleView, super.key});
 
@@ -45,13 +46,14 @@ class _RegisterState extends State<Register> {
         ],
       ),
       body: isLoading
-    ? Center(
-        child: CircularProgressIndicator(
-          valueColor: AlwaysStoppedAnimation<Color>(Colors.lightBlue!),
-        ),
-         )
-    : SingleChildScrollView(
-              padding: const EdgeInsets.symmetric(vertical: 20.0, horizontal: 50.0),
+          ? Center(
+              child: CircularProgressIndicator(
+                valueColor: AlwaysStoppedAnimation<Color>(Colors.lightBlue!),
+              ),
+            )
+          : SingleChildScrollView(
+              padding:
+                  const EdgeInsets.symmetric(vertical: 20.0, horizontal: 50.0),
               child: Form(
                 key: _formKey,
                 child: Column(
@@ -61,13 +63,14 @@ class _RegisterState extends State<Register> {
                       style: TextStyle(
                         fontSize: 32.0,
                         fontWeight: FontWeight.bold,
-                      
                       ),
                     ),
                     const SizedBox(height: 30.0),
                     TextFormField(
-                      decoration: textInputDecoration.copyWith(hintText: 'First Name'),
-                      validator: (val) => val!.isEmpty ? 'Enter a first name' : null,
+                      decoration:
+                          textInputDecoration.copyWith(hintText: 'First Name'),
+                      validator: (val) =>
+                          val!.isEmpty ? 'Enter a first name' : null,
                       onChanged: (val) {
                         setState(() {
                           firstName = val;
@@ -76,8 +79,10 @@ class _RegisterState extends State<Register> {
                     ),
                     const SizedBox(height: 20.0),
                     TextFormField(
-                      decoration: textInputDecoration.copyWith(hintText: 'Last Name'),
-                      validator: (val) => val!.isEmpty ? 'Enter a last name' : null,
+                      decoration:
+                          textInputDecoration.copyWith(hintText: 'Last Name'),
+                      validator: (val) =>
+                          val!.isEmpty ? 'Enter a last name' : null,
                       onChanged: (val) {
                         setState(() {
                           lastName = val;
@@ -86,8 +91,10 @@ class _RegisterState extends State<Register> {
                     ),
                     const SizedBox(height: 20.0),
                     TextFormField(
-                      decoration: textInputDecoration.copyWith(hintText: 'Phone Number'),
-                      validator: (val) => val!.isEmpty ? 'Enter a phone number' : null,
+                      decoration: textInputDecoration.copyWith(
+                          hintText: 'Phone Number'),
+                      validator: (val) =>
+                          val!.isEmpty ? 'Enter a phone number' : null,
                       onChanged: (val) {
                         setState(() {
                           phoneNumber = val;
@@ -96,8 +103,10 @@ class _RegisterState extends State<Register> {
                     ),
                     const SizedBox(height: 20.0),
                     TextFormField(
-                      decoration: textInputDecoration.copyWith(hintText: 'Email'),
-                      validator: (val) => val!.isEmpty ? 'Enter an email' : null,
+                      decoration:
+                          textInputDecoration.copyWith(hintText: 'Email'),
+                      validator: (val) =>
+                          val!.isEmpty ? 'Enter an email' : null,
                       onChanged: (val) {
                         setState(() {
                           email = val;
@@ -106,8 +115,10 @@ class _RegisterState extends State<Register> {
                     ),
                     const SizedBox(height: 20.0),
                     TextFormField(
-                      decoration: textInputDecoration.copyWith(hintText: 'Password'),
-                      validator: (val) => val!.length < 6 ? 'Enter 6+ characters' : null,
+                      decoration:
+                          textInputDecoration.copyWith(hintText: 'Password'),
+                      validator: (val) =>
+                          val!.length < 6 ? 'Enter 6+ characters' : null,
                       obscureText: true,
                       onChanged: (val) {
                         setState(() {
@@ -129,7 +140,9 @@ class _RegisterState extends State<Register> {
                             String assignedRole = await _determineRole();
 
                             // Register user
-                            dynamic result = await _authService.registerWithEmailAndPassword(email, password, assignedRole);
+                            dynamic result =
+                                await _authService.registerWithEmailAndPassword(
+                                    email, password, assignedRole);
 
                             if (result is String) {
                               // If result is a String, it indicates an error
@@ -140,25 +153,32 @@ class _RegisterState extends State<Register> {
                               var user = result;
 
                               // Save additional user info in Firestore
-                              await FirebaseFirestore.instance.collection('users').doc(user.uid).set({
+                              await FirebaseFirestore.instance
+                                  .collection('users')
+                                  .doc(user.uid)
+                                  .set({
                                 'firstName': firstName,
                                 'lastName': lastName,
                                 'email': email,
                                 'phoneNumber': phoneNumber,
-                                'role': assignedRole, // Set the role dynamically
-                                'isActive': assignedRole == 'admin', // Admin is active, others are inactive by default
+                                'role':
+                                    assignedRole, // Set the role dynamically
+                                'isActive': assignedRole ==
+                                    'admin', // Admin is active, others are inactive by default
                               });
 
                               // Redirect based on role
                               if (assignedRole == 'admin') {
                                 // Admin can be navigated to the dashboard
-                                Navigator.of(context).pop(); // or navigate to the admin dashboard
+                                Navigator.of(context)
+                                    .pop(); // or navigate to the admin dashboard
                               } else {
                                 // Non-admin users go back to the sign-in page
                                 Navigator.of(context).pushAndRemoveUntil(
-                                  MaterialPageRoute(builder: (context) => const Authenticate()), 
-                                  (route) => false
-                                );
+                                    MaterialPageRoute(
+                                        builder: (context) =>
+                                            const Authenticate()),
+                                    (route) => false);
                               }
                             }
                           } catch (e) {
@@ -166,7 +186,8 @@ class _RegisterState extends State<Register> {
                               print('Error during registration: $e');
                             }
                             setState(() {
-                              error = 'Error during registration. Please try again.';
+                              error =
+                                  'Error during registration. Please try again.';
                             });
                           } finally {
                             setState(() {
@@ -198,7 +219,8 @@ class _RegisterState extends State<Register> {
   Future<String> _determineRole() async {
     try {
       // Check if there are any users in the collection
-      QuerySnapshot userDocs = await FirebaseFirestore.instance.collection('users').get();
+      QuerySnapshot userDocs =
+          await FirebaseFirestore.instance.collection('users').get();
       if (userDocs.docs.isEmpty) {
         // If no users exist, assign 'admin' role
         return 'admin';
