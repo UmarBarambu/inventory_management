@@ -3,7 +3,9 @@ import 'package:inventory_management/services/auth.dart';
 import 'package:inventory_management/shared/constant.dart';
 
 class SignIn extends StatefulWidget {
-  const SignIn({super.key});
+  final VoidCallback toggleView;
+
+  const SignIn({required this.toggleView, super.key});
 
   @override
   State<SignIn> createState() => _SignInState();
@@ -13,7 +15,7 @@ class _SignInState extends State<SignIn> {
   String email = '';
   String password = '';
   String error = '';
-  bool isLoading = false; // New variable to handle loading state
+  bool isLoading = false;
 
   final AuthService _service = AuthService();
   final _formKey = GlobalKey<FormState>();
@@ -21,76 +23,116 @@ class _SignInState extends State<SignIn> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.brown[100],
+      backgroundColor: Colors.white,
       appBar: AppBar(
-        backgroundColor: Colors.brown.shade400,
+        backgroundColor: Colors.white,
         elevation: 0.0,
         title: const Text('Sign In'),
+        actions: [
+          TextButton.icon(
+            icon: const Icon(Icons.person_add, color: Colors.red),
+            label: const Text('Register', style: TextStyle(color: Colors.red)),
+            onPressed: widget.toggleView,
+          ),
+        ],
       ),
-      body: isLoading // Show a loading indicator if isLoading is true
-          ? const Center(child: CircularProgressIndicator())
-          : SingleChildScrollView(
-              child: Container(
-                padding: const EdgeInsets.symmetric(vertical: 20.0, horizontal: 50.0),
-                child: Form(
-                  key: _formKey,
-                  child: Column(
-                    children: [
-                      const SizedBox(height: 20.0),
-                      TextFormField(
-                        decoration: textInputDecoration.copyWith(hintText: 'Email'),
-                        validator: (val) => val!.isEmpty ? 'Enter an email' : null,
-                        onChanged: (val) {
+     body: isLoading
+    ? Center(
+        child: CircularProgressIndicator(
+          valueColor: AlwaysStoppedAnimation<Color>(Colors.lightBlue!),
+        ),
+      )
+    : SingleChildScrollView(
+              padding: const EdgeInsets.symmetric(vertical: 20.0, horizontal: 50.0),
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  children: [
+                    const Text(
+                        'StockMate',
+                        style: TextStyle(
+                          fontSize: 32.0,
+                          fontWeight: FontWeight.bold,
+                          
+                        ),
+                      ),
+                    const SizedBox(height: 30.0),
+                    TextFormField(
+                      decoration: textInputDecoration.copyWith(hintText: 'Email'),
+                      validator: (val) {
+                        if (val == null || val.isEmpty) {
+                          return 'Enter an email';
+                        }
+                        final emailRegex = RegExp(r'^[^@]+@[^@]+\.[^@]+');
+                        if (!emailRegex.hasMatch(val)) {
+                          return 'Enter a valid email';
+                        }
+                        return null;
+                      },
+                      onChanged: (val) {
+                        if (mounted) {
                           setState(() {
                             email = val;
                           });
-                        },
-                      ),
-                      const SizedBox(height: 20.0),
-                      TextFormField(
-                        decoration: textInputDecoration.copyWith(hintText: 'Password'),
-                        validator: (val) => val!.length < 6 ? 'Enter a password with at least 6 characters' : null,
-                        obscureText: true,
-                        onChanged: (val) {
+                        }
+                      },
+                    ),
+                    const SizedBox(height: 20.0),
+                    TextFormField(
+                      decoration: textInputDecoration.copyWith(hintText: 'Password'),
+                      validator: (val) {
+                        if (val == null || val.length < 6) {
+                          return 'Enter a password with at least 6 characters';
+                        }
+                        return null;
+                      },
+                      obscureText: true,
+                      onChanged: (val) {
+                        if (mounted) {
                           setState(() {
                             password = val;
                           });
-                        },
-                      ),
-                      const SizedBox(height: 20.0),
-                      ElevatedButton(
-                        onPressed: () async {
-                          if (_formKey.currentState!.validate()) {
+                        }
+                      },
+                    ),
+                    const SizedBox(height: 20.0),
+                    ElevatedButton(
+                      onPressed: () async {
+                        if (_formKey.currentState?.validate() ?? false) {
+                          if (mounted) {
                             setState(() {
-                              isLoading = true; // Set loading to true
-                              error = ''; // Clear any previous error
-                            });
-                            dynamic result = await _service.signInWithEmailAndPassword(email, password);
-                            if (result == null) {
-                              setState(() {
-                                error = 'Cannot sign in with these credentials';
-                              });
-                            }
-                            setState(() {
-                              isLoading = false; // Set loading to false
+                              isLoading = true;
+                              error = '';
                             });
                           }
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.pink[600],
-                        ),
-                        child: const Text(
-                          'Sign In',
-                          style: TextStyle(color: Colors.white),
-                        ),
+                          dynamic result = await _service.signInWithEmailAndPassword(email, password);
+                          if (mounted) {
+                            setState(() {
+                              isLoading = false;
+                              if (result is String) {
+                                error = result;
+                              } else {
+                                // Navigate to the home page or dashboard if sign-in is successful
+                                Navigator.of(context).pushReplacementNamed('/home');
+                              }
+                            });
+                          }
+                        }
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.blue,
                       ),
-                      const SizedBox(height: 12.0),
-                      Text(
-                        error,
-                        style: const TextStyle(color: Colors.red, fontSize: 14.0),
+                      child: const Text(
+                        'Sign In',
+                        style: TextStyle(color: Colors.white),
                       ),
-                    ],
-                  ),
+                    ),
+                    const SizedBox(height: 12.0),
+                    Text(
+                      error,
+                      style: const TextStyle(color: Colors.red, fontSize: 14.0),
+                    ),
+                  ],
                 ),
               ),
             ),

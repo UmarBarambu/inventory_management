@@ -1,13 +1,8 @@
-class UserData {
-  final String uid;
-  final String firstName;
-  final String lastName;
-  final String role;
+class User {
+  final String uid;   // Unique ID for each user (from Firebase, for example)
+  final String email; // User's email address
+  final String role;  // User's role (e.g., 'admin', 'manager', 'staff')
 
-  UserData({
-    required this.uid,
-    required this.firstName,
-    required this.lastName,
-    required this.role,
-  });
+  // Constructor for the User class
+  User({required this.uid, required this.email, required this.role});
 }

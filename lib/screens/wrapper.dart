@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:inventory_management/screens/authenticate/authenticate.dart';
 import 'package:inventory_management/screens/home/adminDashboard.dart';
@@ -8,7 +9,10 @@ import 'package:inventory_management/screens/home/staffDashboard.dart';
 import 'package:provider/provider.dart';
 
 class Wrapper extends StatefulWidget {
+  const Wrapper({super.key});
+
   @override
+  // ignore: library_private_types_in_public_api
   _WrapperState createState() => _WrapperState();
 }
 
@@ -39,7 +43,9 @@ class _WrapperState extends State<Wrapper> {
         });
       }
     } catch (e) {
-      print("Error checking admin registration: $e");
+      if (kDebugMode) {
+        print("Error checking admin registration: $e");
+      }
     }
   }
 
@@ -51,10 +57,10 @@ class _WrapperState extends State<Wrapper> {
       // User is not authenticated, show the Authenticate screen
       if (_isAdminRegistered) {
         // If admin is registered, always show SignIn page
-        return Authenticate();
+        return const Authenticate();
       } else {
         // If no admin is registered, show the Register page
-        return Authenticate(); // Modify Authenticate to show Register if needed
+        return const Authenticate(); // Modify Authenticate to show Register if needed
       }
     } else {
       // User is authenticated, fetch user role from Firestore
@@ -63,10 +69,13 @@ class _WrapperState extends State<Wrapper> {
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             // Show a loading indicator while fetching user data
-            return Scaffold(
-              body: Center(
-                child: CircularProgressIndicator(),
-              ),
+            return const Scaffold(
+              body:Center(
+              child: CircularProgressIndicator(
+              valueColor: AlwaysStoppedAnimation<Color>(Colors.lightBlue),
+           ),
+          )
+
             );
           } else if (snapshot.hasError) {
             // Handle errors
@@ -85,13 +94,13 @@ class _WrapperState extends State<Wrapper> {
             // Proceed with showing dashboard based on the user role
             switch (role) {
               case 'admin':
-                return Admindashboard();
+                return const Admindashboard();
               case 'manager':
-                return Managerdashboard();
+                return const Managerdashboard();
               case 'staff':
-                return Staffdashboard();
+                return const Staffdashboard();
               default:
-                return Scaffold(
+                return const Scaffold(
                   body: Center(
                     child: Text('Role not recognized'),
                   ),
@@ -100,10 +109,10 @@ class _WrapperState extends State<Wrapper> {
           } else if (!snapshot.data!.exists) {
             // If no Firestore data exists, sign the user out
             FirebaseAuth.instance.signOut();
-            return Authenticate();
+            return const Authenticate();
           } else {
             // Handle case where no user data is found
-            return Scaffold(
+            return const Scaffold(
               body: Center(
                 child: Text('No user data found'),
               ),
