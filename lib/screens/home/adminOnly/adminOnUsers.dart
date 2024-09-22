@@ -54,9 +54,17 @@ class _AdminOnUsersState extends State<AdminOnUsers> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
-        title: const Text('Current Users'),
-        backgroundColor: Colors.blue.shade200,
+        title: const Text(
+          'Current Staffs',
+          style: TextStyle(
+            fontSize: 30.0,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        centerTitle: true,
+        backgroundColor: Colors.white,
       ),
       body: FutureBuilder<QuerySnapshot>(
         future: FirebaseFirestore.instance
@@ -65,11 +73,11 @@ class _AdminOnUsersState extends State<AdminOnUsers> {
             .get(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-             return const Center(
-                child: CircularProgressIndicator(
-                  valueColor: AlwaysStoppedAnimation<Color>(Colors.lightBlue), // Set the color to light blue
-                ),
-              );
+            return const Center(
+              child: CircularProgressIndicator(
+                valueColor: AlwaysStoppedAnimation<Color>(Colors.lightBlue),
+              ),
+            );
           } else if (snapshot.hasError) {
             return Center(child: Text('Error: ${snapshot.error}'));
           } else if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
@@ -78,72 +86,176 @@ class _AdminOnUsersState extends State<AdminOnUsers> {
             final users = snapshot.data!.docs;
 
             // Initialize userRoles map
-            userRoles = { for (var userDoc in users) userDoc.id : (userDoc.data() as Map<String, dynamic>)['role'] ?? 'N/A' };
+            userRoles = {
+              for (var userDoc in users) 
+                userDoc.id: (userDoc.data() as Map<String, dynamic>)['role'] ?? 'N/A'
+            };
 
             // Initialize userActiveStatus map
-            userActiveStatus = { for (var userDoc in users) userDoc.id : (userDoc.data() as Map<String, dynamic>)['isActive'] ?? true };
+            userActiveStatus = {
+              for (var userDoc in users) 
+                userDoc.id: (userDoc.data() as Map<String, dynamic>)['isActive'] ?? true
+            };
 
             return SingleChildScrollView(
               scrollDirection: Axis.horizontal,
-              child: DataTable(
-                columnSpacing: 18.0,
-                columns: const <DataColumn>[
-                   DataColumn(label: Text('First Name', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16))),
-                DataColumn(label: Text('Last Name', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16))),
-                DataColumn(label: Text('Phone Number', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16))),
-                DataColumn(label: Text('Email', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16))),
-                DataColumn(label: Text('Role', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16))),
-                DataColumn(label: Text('Active', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16))),
-                DataColumn(label: Text('Actions', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16))),
-                ],
-                rows: users.map((userDoc) {
-                  final user = userDoc.data() as Map<String, dynamic>;
-                  final userId = userDoc.id;
-                  final phoneNumber = user['phoneNumber'] ?? 'N/A';
-                  final role = userRoles[userId] ?? 'N/A'; // Use tracked role
-                  final isActive = userActiveStatus[userId] ?? true; // Use tracked status
+              child: Container(
+                padding: const EdgeInsets.all(16.0),
+                decoration: BoxDecoration(
+                  color: Colors.grey[200],
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: DataTable(
+                  columnSpacing: 18.0,
+                  columns: <DataColumn>[
+                    DataColumn(
+                      label: Container(
+                        color: Colors.grey,
+                        padding: const EdgeInsets.all(8.0),
+                        child: const Text(
+                          'First Name',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                    ),
+                    DataColumn(
+                      label: Container(
+                        color: Colors.grey,
+                        padding: const EdgeInsets.all(8.0),
+                        child: const Text(
+                          'Last Name',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                    ),
+                    DataColumn(
+                      label: Container(
+                        color: Colors.grey,
+                        padding: const EdgeInsets.all(8.0),
+                        child: const Text(
+                          'Phone Number',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                    ),
+                    DataColumn(
+                      label: Container(
+                        color: Colors.grey,
+                        padding: const EdgeInsets.all(8.0),
+                        child: const Text(
+                          'Email',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                    ),
+                    DataColumn(
+                      label: Container(
+                        color: Colors.grey,
+                        padding: const EdgeInsets.all(8.0),
+                        child: const Text(
+                          'Role',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                    ),
+                    DataColumn(
+                      label: Container(
+                        color: Colors.grey,
+                        padding: const EdgeInsets.all(8.0),
+                        child: const Text(
+                          'Active',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                    ),
+                    DataColumn(
+                      label: Container(
+                        color: Colors.grey,
+                        padding: const EdgeInsets.all(8.0),
+                        child: const Text(
+                          'Actions',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                  rows: users.map((userDoc) {
+                    final user = userDoc.data() as Map<String, dynamic>;
+                    final userId = userDoc.id;
+                    final phoneNumber = user['phoneNumber'] ?? 'N/A';
+                    final role = userRoles[userId] ?? 'N/A'; // Use tracked role
+                    final isActive = userActiveStatus[userId] ?? true; // Use tracked status
 
-                  return DataRow(
-                    cells: <DataCell>[
-                      DataCell(Text(user['firstName'] ?? 'N/A',  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),)),
-                      DataCell(Text(user['lastName'] ?? 'N/A',  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),)),
-                      DataCell(Text(phoneNumber, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),)),
-                      DataCell(Text(user['email'] ?? 'N/A', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),)),
-                      DataCell(
-                        DropdownButton<String>(
-                          value: role,
-                          items: <String>['staff', 'manager'].map((String value) {
-                            return DropdownMenuItem<String>(
-                              value: value,
-                              child: Text(value),
-                            );
-                          }).toList(),
-                          onChanged: (String? newValue) {
-                            if (newValue != null) {
-                              _updateUserRole(userId, newValue);
-                            }
-                          },
+                    return DataRow(
+                      cells: <DataCell>[
+                        DataCell(Text(user['firstName'] ?? 'N/A', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14))),
+                        DataCell(Text(user['lastName'] ?? 'N/A', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14))),
+                        DataCell(Text(phoneNumber, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14))),
+                        DataCell(Text(user['email'] ?? 'N/A', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14))),
+                        DataCell(
+                          DropdownButton<String>(
+                            value: role,
+                            items: <String>['staff', 'manager'].map((String value) {
+                              return DropdownMenuItem<String>(
+                                value: value,
+                                child: Text(value),
+                              );
+                            }).toList(),
+                            onChanged: (String? newValue) {
+                              if (newValue != null) {
+                                _updateUserRole(userId, newValue);
+                              }
+                            },
+                          ),
                         ),
-                      ),
-                      DataCell(
-                        Checkbox(
-                          value: isActive,
-                          onChanged: (bool? newValue) {
-                            if (newValue != null) {
-                              _updateUserStatus(userId, newValue);
-                            }
-                          },
+                        DataCell(
+                          Checkbox(
+                            value: isActive,
+                            onChanged: (bool? newValue) {
+                              if (newValue != null) {
+                                _updateUserStatus(userId, newValue);
+                              }
+                            },
+                          ),
                         ),
-                      ),
-                      DataCell(
-                        IconButton(
-                          icon: const Icon(Icons.delete),
-                          onPressed: () => _deleteUser(userId),
+                        DataCell(
+                          IconButton(
+                            icon: const Icon(Icons.delete),
+                            onPressed: () => _deleteUser(userId),
+                          ),
                         ),
-                      ),
-                    ],
-                  );
-                }).toList(),
+                      ],
+                    );
+                  }).toList(),
+                ),
               ),
             );
           }

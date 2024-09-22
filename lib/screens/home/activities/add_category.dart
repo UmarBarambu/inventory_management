@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:inventory_management/models/category.dart'; // Import the Category model
+import 'package:inventory_management/screens/home/activities/add_product.dart';
 import 'package:inventory_management/services/categoryDatabase.dart';
 import 'package:inventory_management/shared/constant.dart';
 
 class AddCategory extends StatefulWidget {
-  const AddCategory({Key? key}) : super(key: key);
+  final bool isFromDrawer;
+  const AddCategory({super.key, this.isFromDrawer = true});
 
   @override
   _AddCategoryState createState() => _AddCategoryState();
@@ -25,6 +27,16 @@ class _AddCategoryState extends State<AddCategory> {
 
   Future<void> _submitForm() async {
     if (_formKey.currentState?.validate() ?? false) {
+
+          // Check if a vendor with the same name exists
+    bool exists = await _categoryDatabase.categoryExists(_nameController.text);
+    if (exists) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Category with name "${_nameController.text}" already exists!')),
+
+      );
+      return; // Exit the function if vendor exists
+    }
       // Create a unique ID based on current timestamp
       final String id = DateTime.now().millisecondsSinceEpoch.toString();
 
@@ -49,6 +61,7 @@ class _AddCategoryState extends State<AddCategory> {
         _formKey.currentState?.reset();
         _nameController.clear();
         _descriptionController.clear();
+        _next();
       } catch (e) {
         // Show error message in case of failure
         ScaffoldMessenger.of(context).showSnackBar(
@@ -57,13 +70,29 @@ class _AddCategoryState extends State<AddCategory> {
       }
     }
   }
+  
+  void _next() {
+    if (widget.isFromDrawer) {
+      Navigator.of(context).pop();
+    } else {
+      Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (context) => const AddProduct()));
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
-        title: const Text('Add Category'),
-        backgroundColor: Colors.blue.shade100,
+        title: const Text('Add Category',
+         style: const TextStyle(
+            fontSize: 30.0,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        centerTitle: true,
+        backgroundColor: Colors.white,
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),

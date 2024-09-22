@@ -1,5 +1,4 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:inventory_management/screens/home/adminDashboard.dart';
 import 'package:inventory_management/services/auth.dart';
@@ -58,7 +57,7 @@ class _AddUserScreenState extends State<AddUserScreen> {
             'phoneNumber': phoneNumber,
             'email': email,
             'role': role,
-            'isActive': false,
+            'isActive': true,
           });
 
           print('User added successfully to Firestore');
@@ -89,80 +88,18 @@ class _AddUserScreenState extends State<AddUserScreen> {
     }
   }
 
-  // Future<void> _addUser() async {
-  //   if (_formKey.currentState?.validate() ?? false) {
-  //     if (email.isNotEmpty &&
-  //         password.isNotEmpty &&
-  //         firstName.isNotEmpty &&
-  //         lastName.isNotEmpty &&
-  //         phoneNumber.isNotEmpty &&
-  //         role.isNotEmpty) {
-  //       setState(() {
-  //         isLoading = true; // Start loading state
-  //       });
-
-  //       try {
-  //         // Register the user with Firebase Authentication
-  //         final result = await _authService.registerWithEmailAndPassword(
-  //             email, password, role);
-
-  //         if (result == null) {
-  //           throw Exception('Registration failed: No result returned');
-  //         } else if (result is String) {
-  //           throw Exception('Registration failed: $result');
-  //         }
-
-  //         final user = result;
-  //         if (user.uid == null) {
-  //           throw Exception('Registration failed: User ID is null');
-  //         }
-
-  //         // Save additional user info to Firestore
-  //         await FirebaseFirestore.instance
-  //             .collection('users')
-  //             .doc(user.uid)
-  //             .set({
-  //           'firstName': firstName,
-  //           'lastName': lastName,
-  //           'phoneNumber': phoneNumber,
-  //           'email': email,
-  //           'role': role,
-  //           'isActive': false,
-  //         });
-
-  //         print('User added successfully to Firestore');
-
-  //         // Navigate back to the AdminDashboard
-  //         Navigator.of(context).pushReplacement(
-  //           MaterialPageRoute(
-  //             builder: (context) => const Admindashboard(),
-  //           ),
-  //         );
-  //       } catch (e) {
-  //         // Handle any exceptions
-  //         print('Error during user registration: $e');
-  //         ScaffoldMessenger.of(context).showSnackBar(
-  //           SnackBar(content: Text('Registration Error: ${e.toString()}')),
-  //         );
-  //       } finally {
-  //         setState(() {
-  //           isLoading = false; // Stop loading state
-  //         });
-  //       }
-  //     } else {
-  //       print('Please fill all fields');
-  //       ScaffoldMessenger.of(context).showSnackBar(
-  //         SnackBar(content: const Text('Please fill all fields')),
-  //       );
-  //     }
-  //   }
-  // }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Add User'),
+        title: const Text('Add New User',
+          style: const TextStyle(
+            fontSize: 25.0,
+            fontWeight: FontWeight.bold,
+            ),
+        ),
+        centerTitle: true,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () {
@@ -265,7 +202,13 @@ class _AddUserScreenState extends State<AddUserScreen> {
                         children: [
                           ElevatedButton(
                             onPressed: _addUser,
-                            child: const Text('Save'),
+                             style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.blue,
+                      ),
+                      child: const Text(
+                        'Save',
+                        style: TextStyle(color: Colors.white),
+                      ),
                           ),
                           ElevatedButton(
                             onPressed: () {
@@ -276,7 +219,13 @@ class _AddUserScreenState extends State<AddUserScreen> {
                                 ),
                               );
                             },
-                            child: const Text('Cancel'),
+                            style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.blue,
+                      ),
+                      child: const Text(
+                        'Cancel',
+                        style: TextStyle(color: Colors.white),
+                      ),
                           ),
                         ],
                       ),

@@ -18,53 +18,69 @@ class _AddVendorState extends State<AddVendor> {
   final _contactController = TextEditingController();
   final _addressController = TextEditingController();
 
-  final VendorDatabase _vendorDatabase =
-      VendorDatabase(); // Instance of VendorDatabase
-
-  void _submitForm() async {
-    print("Button pressed"); // Debug print
-    if (_formKey.currentState?.validate() ?? false) {
-      print("Form is valid"); // Debug print
-
-      try {
-        // Create a unique ID for the vendor
-        final id = DateTime.now().millisecondsSinceEpoch.toString();
-
-        // Create a Vendor instance
-        final vendor = Vendor(
-          id: id,
-          name: _nameController.text,
-          contact: _contactController.text,
-          address: _addressController.text,
-          createdAt: DateTime.now(),
-        );
-
-        // Add the vendor to the database
-        await _vendorDatabase.addVendor(vendor);
-        print("Vendor added: ${vendor.name}"); // Debug print
-
-        // Show a confirmation message
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Vendor ${vendor.name} added!')),
-        );
-
-        // Clear the form
-        _formKey.currentState?.reset();
-        _nameController.clear();
-        _contactController.clear();
-        _addressController.clear();
-
-        _next();
-      } catch (e) {
-        print("Error: $e"); // Debug print
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to add vendor: ${e.toString()}')),
-        );
-      }
-    } else {
-      print("Form is not valid"); // Debug print
-    }
+  
+  @override
+  void dispose() {
+    _nameController.dispose();
+    _contactController.dispose();
+    _addressController.dispose();
+    super.dispose();
   }
+  final VendorDatabase _vendorDatabase =  VendorDatabase(); // Instance of VendorDatabase
+
+void _submitForm() async {
+  print("Button pressed"); // Debug print
+  if (_formKey.currentState?.validate() ?? false) {
+    print("Form is valid"); // Debug print
+
+    // Check if a vendor with the same name exists
+    bool exists = await _vendorDatabase.vendorExists(_nameController.text);
+    if (exists) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Vendor with this "${_nameController.text}" already exists!')),
+      );
+      return; // Exit the function if vendor exists
+    }
+
+    // Create a unique ID for the vendor
+    final id = DateTime.now().millisecondsSinceEpoch.toString();
+
+    // Create a Vendor instance
+    final Vendor vendor = Vendor(
+      id: id,
+      name: _nameController.text,
+      contact: _contactController.text,
+      address: _addressController.text,
+      createdAt: DateTime.now(),
+    );
+
+    try {
+      // Add the vendor to the database
+      await _vendorDatabase.addVendor(vendor);
+      print("Vendor added: ${vendor.name}"); // Debug print
+
+      // Show a confirmation message
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Vendor ${vendor.name} added!')),
+      );
+
+      // Clear the form
+      _formKey.currentState?.reset();
+      _nameController.clear();
+      _contactController.clear();
+      _addressController.clear();
+      _next();
+    } catch (e) {
+      print("Error: $e"); // Debug print
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to add vendor: ${e.toString()}')),
+      );
+    }
+  } else {
+    print("Form is not valid"); // Debug print
+  }
+}
+
 
   void _next() {
     if (widget.isFromDrawer) {
@@ -78,9 +94,16 @@ class _AddVendorState extends State<AddVendor> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
-        title: const Text('Add Vendor'),
-        backgroundColor: Colors.blue.shade100,
+        title: const Text('Add Vendor',
+         style: TextStyle(
+            fontSize: 30.0,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        centerTitle: true,
+        backgroundColor: Colors.white,
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),

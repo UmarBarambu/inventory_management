@@ -13,27 +13,39 @@ var textInputDecoration = InputDecoration(
   ),
 );
 
-var textInputD = InputDecoration(
+ const myTextInputDecoration = InputDecoration(
   fillColor: Colors.white,
   filled: true,
-  focusedBorder: const OutlineInputBorder(
+  focusedBorder: OutlineInputBorder(
     borderSide: BorderSide(color: Colors.lightBlue, width: 2.0),
   ),
   enabledBorder: OutlineInputBorder(
-    borderSide: BorderSide(color: Colors.blue.shade200, width: 1.0),
+    borderSide: BorderSide(color: Colors.black87, width: 1.0),
   ),
 );
 
-var textInput = InputDecoration(
+
+var textInputD = const InputDecoration(
   fillColor: Colors.white,
   filled: true,
-  focusedBorder: const OutlineInputBorder(
+  focusedBorder: OutlineInputBorder(
     borderSide: BorderSide(color: Colors.lightBlue, width: 2.0),
   ),
   enabledBorder: OutlineInputBorder(
-    borderSide: BorderSide(color: Colors.blue.shade200, width: 1.0),
+    borderSide: BorderSide(color:Colors.black87, width: 1.0),
   ),
-  contentPadding: const EdgeInsets.symmetric(
+);
+
+var textInput = const InputDecoration(
+  fillColor: Colors.white,
+  filled: true,
+  focusedBorder: OutlineInputBorder(
+    borderSide: BorderSide(color: Colors.lightBlue, width: 2.0),
+  ),
+  enabledBorder: OutlineInputBorder(
+    borderSide: BorderSide(color:Colors.black87, width: 1.0),
+  ),
+  contentPadding: EdgeInsets.symmetric(
       vertical: 30.0,
       horizontal: 12.0), // Increase vertical padding to make the field taller
 );

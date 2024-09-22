@@ -13,6 +13,24 @@ class VendorDatabase {
   // Reference to the 'products' collection
   CollectionReference get productsCollection => _firestore.collection('products');
 
+
+  
+  // Check if a vendor with the given name exists
+Future<bool> vendorExists(String name) async {
+  try {
+    // Query the vendors collection for a document with the same name
+    QuerySnapshot querySnapshot = await vendorsCollection
+        .where('name', isEqualTo: name)
+        .get();
+    // Return true if a vendor with the same name exists
+    return querySnapshot.docs.isNotEmpty;
+  } catch (e) {
+    // Log the error and rethrow
+    _logger.e('Failed to check if vendor exists', e);
+    rethrow;
+  }
+}
+
   // Add a new vendor to Firestore
   Future<void> addVendor(Vendor vendor) async {
     try {

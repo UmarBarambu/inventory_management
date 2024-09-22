@@ -8,6 +8,10 @@ import 'package:image_picker/image_picker.dart';
 import 'package:inventory_management/screens/home/activities/add_category.dart';
 import 'package:inventory_management/screens/home/activities/add_product.dart';
 import 'package:inventory_management/screens/home/activities/add_vendor.dart';
+import 'package:inventory_management/screens/home/activities/searchProduct.dart';
+import 'package:inventory_management/screens/home/charts/stockLevel.dart';
+import 'package:inventory_management/screens/home/history/historyScreen.dart';
+import 'package:inventory_management/screens/home/homeScreen/homeScreen.dart';
 import 'package:inventory_management/services/auth.dart';
 
 class Managerdashboard extends StatefulWidget {
@@ -72,24 +76,24 @@ Future<void> _fetchUserDetails() async {
     }
   }
 
-  // Method to handle screen changes based on selected index
-  Widget _getScreen(int index) {
-    switch (index) {
-      case 0:
-        return const Center(child: Text('Home Screen', style: TextStyle(fontSize: 24)));
-      case 1:
-        return const Center(child: Text('History Screen', style: TextStyle(fontSize: 24)));
-      case 2:
-        return const Center(child: Text('Chart Screen', style: TextStyle(fontSize: 24)));
-      default:
-        return const Center(child: Text('Unknown Screen', style: TextStyle(fontSize: 24)));
-    }
+   // Method to handle screen changes based on selected index
+ Widget _getScreen(int index) {
+  switch (index) {
+    case 0:
+      return const  HomeScreen(); // Return the HomeScreen widget
+    case 1:
+      return const History(history: [],); // Return the HistoryScreen widget
+    case 2:
+      return const Stocklevel(); // Return the ChartScreen widget
+    default:
+      return const Center(child: Text('Unknown Screen', style: TextStyle(fontSize: 24)));
   }
+}
 
-   String _getAppBarTitle(int index) {
+  String _getAppBarTitle(int index) {
     switch (index) {
       case 0:
-        return 'Home';
+        return 'Available Stock';
       case 1:
         return 'History';
       case 2:
@@ -99,6 +103,8 @@ Future<void> _fetchUserDetails() async {
     }
   }
 
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -107,20 +113,29 @@ Future<void> _fetchUserDetails() async {
         title: Text(
           _getAppBarTitle(_selectedIndex),
           style: const TextStyle(
-            fontSize: 32.0,
+            fontSize: 25.0,
             fontWeight: FontWeight.bold,
           ),
         ),
         centerTitle: true,
-        backgroundColor: Colors.blue.shade100,
+         backgroundColor: Colors.white,
         actions: [
           IconButton(
             icon: const Icon(Icons.search),
             onPressed: () {
-              showSearch(
-                context: context,
-                delegate: CustomSearchDelegate(),
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const ProductSearchScreen()),
               );
+            },
+          ),
+           IconButton(
+            icon: const Icon(Icons.refresh),
+            onPressed: () {
+              setState(() {
+                _fetchUserDetails(); // Refresh user details
+                _selectedIndex = 0;  // Reset to the default screen (optional)
+              });
             },
           ),
         ],
@@ -133,7 +148,7 @@ Future<void> _fetchUserDetails() async {
             children: [
               DrawerHeader(
                 decoration: BoxDecoration(
-                  color: Colors.blue.shade100,
+                  color: Colors.lightBlue,
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.center,
@@ -168,8 +183,8 @@ Future<void> _fetchUserDetails() async {
                     Text(
                     _userName.isNotEmpty ? _userName : 'Loading...', // Display user name
                     style: const TextStyle(
-                      color: Colors.black,
-                      fontSize: 16,
+                       color: Colors.white,
+                      fontSize: 18,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
@@ -177,7 +192,7 @@ Future<void> _fetchUserDetails() async {
                   Text(
                     _roleName.isNotEmpty ? '($_roleName) ': 'Loading...', // Display user role
                     style: const TextStyle(
-                      color: Colors.black,
+                     color: Colors.white,
                       fontSize: 12,
                       fontWeight: FontWeight.bold,
                     ),
@@ -250,10 +265,10 @@ Future<void> _fetchUserDetails() async {
               ),
               const Divider(),
               ListTile(
-                leading: const Icon(Icons.logout),
-                title: const Text('Logout',  
+                leading: const Icon(Icons.logout, color: Colors.red),
+                title: const Text('Logout',   
                 style: const TextStyle(
-                        color: Colors.black,
+                        color: Colors.red,
                         fontSize: 14,
                         fontWeight: FontWeight.bold,
                       ),),
@@ -269,15 +284,15 @@ Future<void> _fetchUserDetails() async {
       ),
       body: _getScreen(_selectedIndex), // Show the screen based on the selected index
       bottomNavigationBar: BottomNavigationBar(
-        backgroundColor: Colors.blue.shade100,
+         backgroundColor: Colors.white,
   currentIndex: _selectedIndex,
   onTap: (index) {
     setState(() {
       _selectedIndex = index;
     });
   },
-  selectedItemColor: Colors.black, // Color for the selected item
-  unselectedItemColor: Colors.black87, // Color for unselected items
+  selectedItemColor: Colors.blue, // Color for the selected item
+  unselectedItemColor: Colors.grey, // Color for unselected items
   items: const [
     BottomNavigationBarItem(
       icon: Icon(Icons.home),
@@ -293,60 +308,6 @@ Future<void> _fetchUserDetails() async {
     ),
   ],
 ),
-    );
-  }
-}
-
-// Custom Search Delegate
-class CustomSearchDelegate extends SearchDelegate {
-  @override
-  List<Widget> buildActions(BuildContext context) {
-    return [
-      IconButton(
-        icon: const Icon(Icons.clear),
-        onPressed: () {
-          query = '';
-        },
-      ),
-    ];
-  }
-
-  @override
-  Widget buildLeading(BuildContext context) {
-    return IconButton(
-      icon: const Icon(Icons.arrow_back),
-      onPressed: () {
-        close(context, null);
-      },
-    );
-  }
-
-  @override
-  Widget buildResults(BuildContext context) {
-    // Implement search result logic
-    return Center(
-      child: Text('Search result for "$query"'),
-    );
-  }
-
-  @override
-  Widget buildSuggestions(BuildContext context) {
-    // Provide search suggestions as the user types
-    final suggestions = query.isEmpty
-        ? ['Suggestion 1', 'Suggestion 2']
-        : ['Result 1', 'Result 2']; // You can customize this as needed
-
-    return ListView.builder(
-      itemCount: suggestions.length,
-      itemBuilder: (context, index) {
-        return ListTile(
-          title: Text(suggestions[index]),
-          onTap: () {
-            query = suggestions[index];
-            showResults(context); // Show results when a suggestion is tapped
-          },
-        );
-      },
     );
   }
 }

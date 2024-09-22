@@ -6,7 +6,7 @@ class Product {
   final double buyingPrice;
   final double sellingPrice;
   final String category_name;
-  final String vendorId;
+  final String vendor_name;
   final int stock;
   final DateTime createdAt; // Field for creation timestamp
 
@@ -17,7 +17,7 @@ class Product {
     required this.buyingPrice,
     required this.sellingPrice,
     required this.category_name,
-    required this.vendorId,
+    required this.vendor_name,
     required this.stock,
     required this.createdAt, // Initialize the field
   });
@@ -30,7 +30,7 @@ class Product {
       'buyingPrice': buyingPrice,
       'sellingPrice': sellingPrice,
       'category_name': category_name,
-      'vendorId': vendorId,
+      'vendorId': vendor_name,
       'stock': stock,
       'createdAt': _formatDate(createdAt), // Use custom formatting for DateTime
     };
@@ -50,7 +50,7 @@ class Product {
       buyingPrice: map['buyingPrice'],
       sellingPrice: map['sellingPrice'],
       category_name: map['category_name'],
-      vendorId: map['vendorId'],
+      vendor_name: map['vendor_name'],
       stock: map['stock'],
       createdAt: DateTime.parse(map['createdAt']), // Parse the formatted DateTime string
     );

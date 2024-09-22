@@ -13,6 +13,23 @@ class CategoryDatabase {
   // Reference to the 'products' collection
   CollectionReference get productsCollection => _firestore.collection('products');
 
+      // Check if a vendor with the given name exists
+Future<bool> categoryExists(String name) async {
+  try {
+    // Query the vendors collection for a document with the same name
+    QuerySnapshot querySnapshot = await categoriesCollection
+        .where('name', isEqualTo: name)
+        .get();
+    // Return true if a vendor with the same name exists
+    return querySnapshot.docs.isNotEmpty;
+  } catch (e) {
+    // Log the error and rethrow
+    _logger.e('Failed to check if vendor exists', e);
+    rethrow;
+  }
+}
+
+
   // Add a new category to Firestore
   Future<void> addCategory(Category category) async {
     try {
@@ -78,6 +95,8 @@ class CategoryDatabase {
       rethrow;
     }
   }
+
+   
 
   // Add a new product to Firestore
   Future<void> addProduct(Product product) async {

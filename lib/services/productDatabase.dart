@@ -20,6 +20,23 @@ class ProductDatabase {
     return formatter.format(dateTime);
   }
 
+       // Check if a product with the given name exists
+Future<bool> productExists(String name) async {
+  try {
+    // Query the vendors collection for a document with the same name
+    QuerySnapshot querySnapshot = await productsCollection
+        .where('name', isEqualTo: name)
+        .get();
+    // Return true if a vendor with the same name exists
+    return querySnapshot.docs.isNotEmpty;
+  } catch (e) {
+    // Log the error and rethrow
+    _logger.e('Failed to check if vendor exists', e);
+    rethrow;
+  }
+}
+
+
   // Add a new product to Firestore
   Future<void> addProduct(Product product) async {
     try {
@@ -70,7 +87,7 @@ class ProductDatabase {
     } catch (e) {
       _logger.e('Failed to get product', e);
       rethrow;
-    }
+    } 
   }
 
   // Get all products from Firestore
@@ -95,16 +112,6 @@ class ProductDatabase {
     }
   }
 
-  // Delete a product by its ID
-  Future<void> deleteProduct(String id) async {
-    try {
-      await productsCollection.doc(id).delete();
-      _logger.i('Product deleted successfully');
-    } catch (e) {
-      _logger.e('Failed to delete product', e);
-      rethrow;
-    }
-  }
 
   // Add a product to a category (many-to-many relationship)
 Future<void> addProductToCategory(String productId, String categoryId) async {

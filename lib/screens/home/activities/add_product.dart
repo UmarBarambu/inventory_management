@@ -2,13 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:inventory_management/models/product.dart';
 import 'package:inventory_management/screens/home/activities/add_category.dart';
 import 'package:inventory_management/screens/home/activities/add_vendor.dart';
+import 'package:inventory_management/screens/home/homeScreen/homeScreen.dart';
 import 'package:inventory_management/services/items.dart';
 import 'package:inventory_management/services/productDatabase.dart';
 import 'package:inventory_management/shared/constant.dart'; // Assuming you have a constant file with InputDecoration
 import 'package:uuid/uuid.dart';
 
 class AddProduct extends StatefulWidget {
-  const AddProduct({super.key});
+  final bool isFromDrawer;
+  const AddProduct({super.key, this.isFromDrawer = true});
 
   @override
   State<AddProduct> createState() => _AddProductState();
@@ -67,7 +69,6 @@ class _AddProductState extends State<AddProduct> {
                         Navigator.of(context).push(
                           MaterialPageRoute(
                             builder: (context) => const AddVendor(
-                              isFromDrawer: false,
                             ),
                           ),
                         );
@@ -106,13 +107,24 @@ class _AddProductState extends State<AddProduct> {
 
   void _submitForm() async {
     if (_formKey.currentState?.validate() ?? false) {
+
+             // Check if a vendor with the same name exists
+    bool exists = await _productDatabase.productExists(_nameController.text);
+    if (exists) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Product with name "${_nameController.text}" already exists!')),
+
+      );
+      return; // Exit the function if vendor exists
+    }
+
       final product = Product(
         id: const Uuid().v4(),
         name: _nameController.text.trim(),
         buyingPrice: double.parse(_buyingPriceController.text.trim()),
         sellingPrice: double.parse(_sellingPriceController.text.trim()),
         category_name: _categoryController.text.trim(),
-        vendorId: _vendorController.text.trim(),
+        vendor_name: _vendorController.text.trim(),
         stock: int.parse(_stockController.text.trim()),
         createdAt: DateTime.now(),
       );
@@ -129,11 +141,21 @@ class _AddProductState extends State<AddProduct> {
         _categoryController.clear();
         _vendorController.clear();
         _stockController.clear();
+        _next();
       } catch (e) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Failed to add product: ${e.toString()}')),
         );
       }
+    }
+  }
+  
+    void _next() {
+    if (widget.isFromDrawer) {
+      Navigator.of(context).pop();
+    } else {
+      Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (context) => const HomeScreen()));
     }
   }
 
@@ -142,8 +164,14 @@ class _AddProductState extends State<AddProduct> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        title: const Text('Add Product'),
-        backgroundColor: Colors.blue.shade100,
+        title: const Text('Add Product',
+         style: const TextStyle(
+            fontSize: 30.0,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        centerTitle: true,
+        backgroundColor: Colors.white,
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -165,7 +193,7 @@ class _AddProductState extends State<AddProduct> {
                       const SizedBox(height: 8),
                       TextFormField(
                         controller: _nameController,
-                        decoration: textInputD,
+                        decoration: myTextInputDecoration,
                         validator: (value) {
                           if (value == null || value.isEmpty) {
                             return 'Please enter the product name';
@@ -182,7 +210,7 @@ class _AddProductState extends State<AddProduct> {
                       const SizedBox(height: 8),
                       TextFormField(
                         controller: _buyingPriceController,
-                        decoration: textInputD.copyWith(hintText: ''),
+                        decoration: myTextInputDecoration.copyWith(hintText: ''),
                         keyboardType: TextInputType.number,
                         validator: (value) {
                           if (value == null || value.isEmpty) {
@@ -203,7 +231,7 @@ class _AddProductState extends State<AddProduct> {
                       const SizedBox(height: 8),
                       TextFormField(
                         controller: _sellingPriceController,
-                        decoration: textInputD.copyWith(hintText: ''),
+                        decoration: myTextInputDecoration.copyWith(hintText: ''),
                         keyboardType: TextInputType.number,
                         validator: (value) {
                           if (value == null || value.isEmpty) {
@@ -225,7 +253,7 @@ class _AddProductState extends State<AddProduct> {
                       TextFormField(
                         controller: _categoryController,
                         decoration:
-                            textInputD.copyWith(hintText: 'Select a category'),
+                            myTextInputDecoration.copyWith(hintText: 'Select a category'),
                         onTap: () => _showSelectionDialog('Category'),
                         readOnly: true,
                       ),
@@ -239,7 +267,7 @@ class _AddProductState extends State<AddProduct> {
                       TextFormField(
                         controller: _vendorController,
                         decoration:
-                            textInputD.copyWith(hintText: 'Select a vendor'),
+                            myTextInputDecoration.copyWith(hintText: 'Select a vendor'),
                         onTap: () => _showSelectionDialog('Vendor'),
                         readOnly: true,
                       ),
@@ -252,7 +280,7 @@ class _AddProductState extends State<AddProduct> {
                       const SizedBox(height: 8),
                       TextFormField(
                         controller: _stockController,
-                        decoration: textInputD.copyWith(hintText: ''),
+                        decoration: myTextInputDecoration.copyWith(hintText: ''),
                         keyboardType: TextInputType.number,
                         validator: (value) {
                           if (value == null || value.isEmpty) {

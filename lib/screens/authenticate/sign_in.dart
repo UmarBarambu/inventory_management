@@ -1,7 +1,4 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:inventory_management/screens/home/homeScreen/homeScreen.dart';
 import 'package:inventory_management/screens/wrapper.dart';
 import 'package:inventory_management/services/auth.dart';
 import 'package:inventory_management/shared/constant.dart';
@@ -20,7 +17,6 @@ class _SignInState extends State<SignIn> {
   String password = '';
   String error = '';
   bool isLoading = false;
-  bool _isAdminRegistered = false;
 
   final AuthService _service = AuthService();
   final _formKey = GlobalKey<FormState>();
