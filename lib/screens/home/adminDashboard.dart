@@ -30,6 +30,7 @@ class _AdmindashboardState extends State<Admindashboard> {
   File? _profileImage; // Variable to store the picked image
   String _userName = ''; // Variable to store the user's name
   String _roleName = ''; // Variable to store the user's role
+  bool _isRefreshing = false; // Variable to track refresh state
 
   @override
   void initState() {
@@ -37,26 +38,25 @@ class _AdmindashboardState extends State<Admindashboard> {
     _fetchUserDetails();
   }
 
-  
- // Method to fetch user details from Firestore
-Future<void> _fetchUserDetails() async {
-  try {
-    // Get current user ID
-    String? uid = _authService.getCurrentUserId();
-    if (uid != null) {
-      // Fetch user data from Firestore
-      DocumentSnapshot userDoc = await FirebaseFirestore.instance.collection('users').doc(uid).get();
-      if (userDoc.exists) {
-        setState(() {
-          _userName = '${userDoc['firstName']} ${userDoc['lastName']}'; // Update the user's name
-          _roleName = userDoc['role']; // Update the user's role
-        });
+  // Method to fetch user details from Firestore
+  Future<void> _fetchUserDetails() async {
+    try {
+      // Get current user ID
+      String? uid = _authService.getCurrentUserId();
+      if (uid != null) {
+        // Fetch user data from Firestore
+        DocumentSnapshot userDoc = await FirebaseFirestore.instance.collection('users').doc(uid).get();
+        if (userDoc.exists) {
+          setState(() {
+            _userName = '${userDoc['firstName']} ${userDoc['lastName']}'; // Update the user's name
+            _roleName = userDoc['role']; // Update the user's role
+          });
+        }
       }
+    } catch (e) {
+      print('Error fetching user details: $e');
     }
-  } catch (e) {
-    print('Error fetching user details: $e');
   }
-}
 
   // Method to sign out
   Future<void> _signOut() async {
@@ -81,13 +81,13 @@ Future<void> _fetchUserDetails() async {
     }
   }
 
-  // Method to handle screen changes based on selected index
+     // Method to handle screen changes based on selected index
  Widget _getScreen(int index) {
   switch (index) {
     case 0:
       return const  HomeScreen(); // Return the HomeScreen widget
     case 1:
-      return const History(history: [], ); // Return the HistoryScreen widget
+      return const History(history: [],); // Return the HistoryScreen widget
     case 2:
       return const Stocklevel(); // Return the ChartScreen widget
     default:
@@ -109,39 +109,30 @@ Future<void> _fetchUserDetails() async {
   }
 
 
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-       appBar: AppBar(
+      appBar: AppBar(
         title: Text(
           _getAppBarTitle(_selectedIndex),
           style: const TextStyle(
             fontSize: 25.0,
             fontWeight: FontWeight.bold,
-           
           ),
         ),
         centerTitle: true,
         backgroundColor: Colors.white,
         actions: [
-        IconButton(
+          IconButton(
             icon: const Icon(Icons.search),
             onPressed: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => const ProductSearchScreen()),
+                MaterialPageRoute(
+                  builder: (context) => const ProductSearchScreen(),
+                ),
               );
-            },
-          ),
-          IconButton(
-            icon: const Icon(Icons.refresh),
-            onPressed: () {
-              setState(() {
-                _fetchUserDetails(); // Refresh user details
-                _selectedIndex = 0;  // Reset to the default screen (optional)
-              });
             },
           ),
         ],
@@ -153,7 +144,7 @@ Future<void> _fetchUserDetails() async {
             padding: EdgeInsets.zero,
             children: [
               DrawerHeader(
-                decoration: BoxDecoration(
+                decoration: const BoxDecoration(
                   color: Colors.lightBlue,
                 ),
                 child: Column(
@@ -324,11 +315,11 @@ Future<void> _fetchUserDetails() async {
           ),
         ),
       ),
-      body: _getScreen(_selectedIndex), // Display the selected screen
+      body: _getScreen(_selectedIndex), // Show the screen based on the selected index
       bottomNavigationBar: BottomNavigationBar(
-      backgroundColor:  Colors.white,
-      currentIndex: _selectedIndex,
-      onTap: (index) {
+         backgroundColor: Colors.white,
+  currentIndex: _selectedIndex,
+  onTap: (index) {
     setState(() {
       _selectedIndex = index;
     });
@@ -350,10 +341,10 @@ Future<void> _fetchUserDetails() async {
     ),
   ],
 ),
-
     );
   }
 }
+
 
 extension on AuthService {
   String? getCurrentUserId() {

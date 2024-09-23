@@ -13,47 +13,8 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  String searchQuery = '';
 
-  @override
-  void initState() {
-    super.initState();
-    _fetchCategories();
-  }
-
-  // Fetch categories
-  Future<List<DocumentSnapshot>> _fetchCategories() async {
-    try {
-      QuerySnapshot querySnapshot = await _firestore.collection('categories').get();
-      return querySnapshot.docs;
-    } catch (e) {
-      debugPrint("Error fetching categories: $e");
-      return [];
-    }
-  }
-
-  // Fetch products for each category based on the search query
-  Future<List<DocumentSnapshot>> _fetchProducts(String categoryName) async {
-    try {
-      debugPrint("Fetching products for category: $categoryName");
-      QuerySnapshot querySnapshot = await _firestore
-          .collection('products')
-          .where('category_name', isEqualTo: categoryName)
-          .get();
-      return querySnapshot.docs.where((doc) {
-        final productName = doc['name']?.toLowerCase() ?? '';
-        return productName.contains(searchQuery.toLowerCase());
-      }).toList();
-    } catch (e) {
-      debugPrint("Error fetching products for category $categoryName: $e");
-      return [];
-    }
-  }
-
-  
-  // Function to add a history record to Firestore
-  Future<void> _addToHistory(
-      String productName, int amount, String action, DateTime date) async {
+  Future<void> _addToHistory(String productName, int amount, String action, DateTime date) async {
     try {
       await _firestore.collection('history').add({
         'productName': productName,
@@ -95,7 +56,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       MaterialPageRoute(
                         builder: (context) => EditStockNo(
                           product: product,
-                          updateHistory: _addToHistory, // Pass the callback
+                          updateHistory: _addToHistory,
                         ),
                       ),
                     );
@@ -130,22 +91,9 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  // Delete the product
   Future<void> _deleteProduct(String productId) async {
     try {
-      await deleteProduct(productId);
-      debugPrint('Product deleted successfully');
-      // Refresh the UI after deletion
-      setState(() {});
-    } catch (e) {
-      debugPrint('Failed to delete product: $e');
-    }
-  }
-
-  // The deleteProduct method that deletes the product from Firestore
-  Future<void> deleteProduct(String id) async {
-    try {
-      await _firestore.collection('products').doc(id).delete();
+      await _firestore.collection('products').doc(productId).delete();
       debugPrint('Product deleted successfully');
     } catch (e) {
       debugPrint('Failed to delete product: $e');
@@ -155,27 +103,31 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: FutureBuilder<List<DocumentSnapshot>>(
-        future: _fetchCategories(),
+      body: StreamBuilder<QuerySnapshot>(
+        stream: _firestore.collection('categories').snapshots(),
         builder: (context, snapshot) {
+           if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator(
+              valueColor: AlwaysStoppedAnimation<Color>(Colors.lightBlue),
+            ));
+          }
           if (snapshot.hasError) {
             return const Center(child: Text('Failed to load categories.'));
           }
 
-          if (!snapshot.hasData || snapshot.data!.isEmpty) {
+          if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
             return const Center(child: Text('No categories found.'));
           }
 
           return ListView.builder(
-            itemCount: snapshot.data!.length,
+            itemCount: snapshot.data!.docs.length,
             itemBuilder: (context, index) {
-              var category = snapshot.data![index];
+              var category = snapshot.data!.docs[index];
               String categoryName = category['name'] ?? 'Unnamed Category';
 
               return Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  
                   Container(
                     width: double.infinity,
                     color: Colors.grey[100],
@@ -185,12 +137,15 @@ class _HomeScreenState extends State<HomeScreen> {
                       style: const TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
-                        
                       ),
                     ),
                   ),
-                  FutureBuilder<List<DocumentSnapshot>>(
-                    future: _fetchProducts(categoryName),
+                  
+                  StreamBuilder<QuerySnapshot>(
+                    stream: _firestore
+                        .collection('products')
+                        .where('category_name', isEqualTo: categoryName)
+                        .snapshots(),
                     builder: (context, productSnapshot) {
                       if (productSnapshot.hasError) {
                         return const Padding(
@@ -199,7 +154,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         );
                       }
 
-                      if (!productSnapshot.hasData || productSnapshot.data!.isEmpty) {
+                      if (!productSnapshot.hasData || productSnapshot.data!.docs.isEmpty) {
                         return const Padding(
                           padding: EdgeInsets.all(8.0),
                           child: Text('No products found.'),
@@ -207,7 +162,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       }
 
                       return Column(
-                        children: productSnapshot.data!.asMap().entries.map((entry) {
+                        children: productSnapshot.data!.docs.asMap().entries.map((entry) {
                           int idx = entry.key;
                           var product = entry.value;
                           String productName = product['name'] ?? 'Unnamed Product';
@@ -260,7 +215,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                   ),
                                 ),
                               ),
-                              if (idx < productSnapshot.data!.length - 1)
+                              if (idx < productSnapshot.data!.docs.length - 1)
                                 const Divider(height: 1, thickness: 1, color: Colors.grey),
                             ],
                           );
@@ -268,8 +223,6 @@ class _HomeScreenState extends State<HomeScreen> {
                       );
                     },
                   ),
-                 
-                    
                 ],
               );
             },
@@ -280,7 +233,7 @@ class _HomeScreenState extends State<HomeScreen> {
         onPressed: () {
           Navigator.of(context).push(
             MaterialPageRoute(
-              builder: (context) => const AddProduct(), // Navigate to AddProduct page
+              builder: (context) => const AddProduct(),
             ),
           );
         },

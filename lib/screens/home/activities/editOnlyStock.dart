@@ -7,9 +7,9 @@ class EditStockNo extends StatefulWidget {
   final DocumentSnapshot product;
 
   const EditStockNo({
-    Key? key,
+    super.key,
     required this.product, required Future<void> Function(String productName, int amount, String action, DateTime date) updateHistory,
-  }) : super(key: key);
+  });
 
   @override
   State<EditStockNo> createState() => _EditStockNoState();
@@ -33,9 +33,7 @@ class _EditStockNoState extends State<EditStockNo> {
       await _firestore.collection('products').doc(widget.product.id).update({
         'stock': newStock,
       });
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Stock updated successfully')),
-      );
+      
     } catch (e) {
       debugPrint('Error updating stock: $e');
     }
@@ -95,6 +93,7 @@ void _deductStock() async {
     );
 
     // Navigate back to the home page
+    // ignore: use_build_context_synchronously
     Navigator.pop(context);
   } else {
     ScaffoldMessenger.of(context).showSnackBar(
