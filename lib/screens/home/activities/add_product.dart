@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:inventory_management/models/product.dart';
 import 'package:inventory_management/screens/home/activities/add_category.dart';
 import 'package:inventory_management/screens/home/activities/add_vendor.dart';
-import 'package:inventory_management/screens/home/homeScreen/homeScreen.dart';
+import 'package:inventory_management/screens/home/homeScreen/home_screen.dart';
 import 'package:inventory_management/services/items.dart';
-import 'package:inventory_management/services/productDatabase.dart';
+import 'package:inventory_management/services/product_database.dart';
 import 'package:inventory_management/shared/constant.dart'; // Assuming you have a constant file with InputDecoration
 import 'package:uuid/uuid.dart';
 

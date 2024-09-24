@@ -22,6 +22,11 @@ class Product {
     required this.createdAt, // Initialize the field
   });
 
+  // Getter for total product value
+  double get totalProductValue {
+    return buyingPrice * stock;
+  }
+
   // Convert Product to a Map
   Map<String, dynamic> toMap() {
     return {
@@ -30,9 +35,10 @@ class Product {
       'buyingPrice': buyingPrice,
       'sellingPrice': sellingPrice,
       'category_name': category_name,
-      'vendorId': vendor_name,
+      'vendor_name': vendor_name,
       'stock': stock,
       'createdAt': _formatDate(createdAt), // Use custom formatting for DateTime
+      'totalProductValue': totalProductValue, // Include total product value in the map
     };
   }
 

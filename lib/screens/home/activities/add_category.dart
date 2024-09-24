@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:inventory_management/models/category.dart'; // Import the Category model
 import 'package:inventory_management/screens/home/activities/add_product.dart';
-import 'package:inventory_management/services/categoryDatabase.dart';
+import 'package:inventory_management/services/category_database.dart';
 import 'package:inventory_management/shared/constant.dart';
 
 class AddCategory extends StatefulWidget {

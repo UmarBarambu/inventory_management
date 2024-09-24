@@ -170,10 +170,12 @@ class _RegisterState extends State<Register> {
                               // Redirect based on role
                               if (assignedRole == 'admin') {
                                 // Admin can be navigated to the dashboard
+                                // ignore: use_build_context_synchronously
                                 Navigator.of(context)
                                     .pop(); // or navigate to the admin dashboard
                               } else {
                                 // Non-admin users go back to the sign-in page
+                                // ignore: use_build_context_synchronously
                                 Navigator.of(context).pushAndRemoveUntil(
                                     MaterialPageRoute(
                                         builder: (context) =>

@@ -1,6 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:inventory_management/screens/home/activities/editOnlyStock.dart';
+import 'package:inventory_management/screens/home/activities/edit_only_stock.dart';
 import 'package:inventory_management/screens/home/activities/update.dart';
 
 class ProductSearchScreen extends StatefulWidget {

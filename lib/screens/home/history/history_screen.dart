@@ -1,10 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:inventory_management/services/historyDatabase.dart';
+import 'package:inventory_management/services/history_database.dart';
 
 class History extends StatefulWidget {
-  const History({Key? key, required List history}) : super(key: key);
+  const History({super.key, required List history});
 
   @override
   State<History> createState() => _HistoryState();

@@ -10,6 +10,8 @@ class Stockvalue extends StatefulWidget {
 class _StockvalueState extends State<Stockvalue> {
   @override
   Widget build(BuildContext context) {
-    return const Scaffold();
+    return const Scaffold(
+      body: Text('Ugly'),
+    );
   }
 }

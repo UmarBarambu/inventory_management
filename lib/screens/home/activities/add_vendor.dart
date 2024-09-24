@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:inventory_management/models/vendor.dart'; // Import the Vendor model
 import 'package:inventory_management/screens/home/activities/add_product.dart';
-import 'package:inventory_management/services/vendorDatabase.dart';
+import 'package:inventory_management/services/vendor_database.dart';
 import 'package:inventory_management/shared/constant.dart'; // Import the VendorDatabase service
 
 class AddVendor extends StatefulWidget {

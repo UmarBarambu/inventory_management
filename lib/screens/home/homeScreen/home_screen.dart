@@ -1,8 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:inventory_management/screens/home/activities/add_product.dart';
-import 'package:inventory_management/screens/home/activities/editOnlyStock.dart';
+import 'package:inventory_management/screens/home/activities/edit_only_stock.dart';
 import 'package:inventory_management/screens/home/activities/update.dart';
+import 'package:inventory_management/screens/home/details/productDetails.dart'; // Ensure to import your ProductDetail screen
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -13,6 +15,30 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+
+  String? userRole; // Variable to store the user's role
+
+  @override
+  void initState() {
+    super.initState();
+    _getUserRole(); // Fetch user role when screen initializes
+  }
+
+  Future<void> _getUserRole() async {
+    try {
+      User? user = _auth.currentUser;
+      if (user != null) {
+        // Assuming user roles are stored in the Firestore under a 'users' collection
+        DocumentSnapshot userDoc = await _firestore.collection('users').doc(user.uid).get();
+        setState(() {
+          userRole = userDoc['role']; // Fetch role from Firestore
+        });
+      }
+    } catch (e) {
+      debugPrint('Failed to fetch user role: $e');
+    }
+  }
 
   Future<void> _addToHistory(String productName, int amount, String action, DateTime date) async {
     try {
@@ -106,7 +132,7 @@ class _HomeScreenState extends State<HomeScreen> {
       body: StreamBuilder<QuerySnapshot>(
         stream: _firestore.collection('categories').snapshots(),
         builder: (context, snapshot) {
-           if (snapshot.connectionState == ConnectionState.waiting) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator(
               valueColor: AlwaysStoppedAnimation<Color>(Colors.lightBlue),
             ));
@@ -140,7 +166,6 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                     ),
                   ),
-                  
                   StreamBuilder<QuerySnapshot>(
                     stream: _firestore
                         .collection('products')
@@ -192,25 +217,45 @@ class _HomeScreenState extends State<HomeScreen> {
                                         ),
                                       ),
                                       Expanded(
-                                        child: Text(
-                                          productName,
-                                          style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
-                                          overflow: TextOverflow.ellipsis,
-                                          maxLines: 1,
-                                        ),
+                                        child: userRole == 'admin' || userRole == 'manager'
+                                            ? TextButton(
+                                                onPressed: () {
+                                                  // Push to the ProductDetail class, passing the product data
+                                                Navigator.push(
+                                              context,
+                                              MaterialPageRoute(
+                                                builder: (context) => ProductDetails(productId: product.id),
+                                              ),
+                                            );
+                                                },
+                                                child: Text(
+                                                  productName,
+                                                  style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color:Colors.black),
+                                                  overflow: TextOverflow.ellipsis,
+                                                  maxLines: 1,
+                                                ),
+                                              )
+                                            : Text(
+                                                productName,
+                                                style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+                                                overflow: TextOverflow.ellipsis,
+                                                maxLines: 1,
+                                              ),
                                       ),
                                       SizedBox(
                                         width: 80,
                                         child: Text(
-                                          '\N${sellingPrice.toStringAsFixed(2)}',
+                                          'N${sellingPrice.toStringAsFixed(2)}',
                                           textAlign: TextAlign.end,
                                           style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
                                         ),
                                       ),
-                                      IconButton(
-                                        icon: const Icon(Icons.more_vert),
-                                        onPressed: () => _showBottomMenu(context, product),
-                                      ),
+                                      // Conditionally show the icon based on user role
+                                      if (userRole == 'admin' || userRole == 'manager')
+                                        IconButton(
+                                          icon: const Icon(Icons.more_vert),
+                                          onPressed: () => _showBottomMenu(context, product),
+                                        ),
                                     ],
                                   ),
                                 ),

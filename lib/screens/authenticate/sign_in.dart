@@ -52,7 +52,7 @@ class _SignInState extends State<SignIn> {
                   children: [
                     const Text(
                       'StockMate',
-                      style: TextStyle(
+                        style: TextStyle(
                         fontSize: 32.0,
                         fontWeight: FontWeight.bold,
                       ),

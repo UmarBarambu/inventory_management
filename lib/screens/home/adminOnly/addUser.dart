@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:inventory_management/screens/home/adminDashboard.dart';
+import 'package:inventory_management/screens/home/admindashboard.dart';
 import 'package:inventory_management/services/auth.dart';
 import 'package:inventory_management/shared/constant.dart';
 
@@ -8,6 +9,7 @@ class AddUserScreen extends StatefulWidget {
   const AddUserScreen({super.key});
 
   @override
+  // ignore: library_private_types_in_public_api
   _AddUserScreenState createState() => _AddUserScreenState();
 }
 
@@ -39,11 +41,9 @@ class _AddUserScreenState extends State<AddUserScreen> {
           final result = await _authService.registerWithEmailAndPasswordV2(
               email, password);
 
-          if (result == null) {
-            throw Exception('Registration failed: No result returned');
-          } else if (result is String) {
-            throw Exception('Registration failed: $result');
-          }
+          if (result is String) {
+          throw Exception('Registration failed: $result');
+        }
 
           final userId = result['localId'];
           if (userId == null) {
@@ -60,9 +60,12 @@ class _AddUserScreenState extends State<AddUserScreen> {
             'isActive': true,
           });
 
-          print('User added successfully to Firestore');
+          if (kDebugMode) {
+            print('User added successfully to Firestore');
+          }
 
           // Navigate back to the AdminDashboard
+          // ignore: use_build_context_synchronously
           Navigator.of(context).pushReplacement(
             MaterialPageRoute(
               builder: (context) => const Admindashboard(),
@@ -70,7 +73,10 @@ class _AddUserScreenState extends State<AddUserScreen> {
           );
         } catch (e) {
           // Handle any exceptions
-          print('Error during user registration: $e');
+          if (kDebugMode) {
+            print('Error during user registration: $e');
+          }
+          // ignore: use_build_context_synchronously
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text('Registration Error: ${e.toString()}')),
           );
@@ -80,9 +86,11 @@ class _AddUserScreenState extends State<AddUserScreen> {
           });
         }
       } else {
-        print('Please fill all fields');
+        if (kDebugMode) {
+          print('Please fill all fields');
+        }
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: const Text('Please fill all fields')),
+          const SnackBar(content: Text('Please fill all fields')),
         );
       }
     }
@@ -94,7 +102,7 @@ class _AddUserScreenState extends State<AddUserScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Add New User',
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 25.0,
             fontWeight: FontWeight.bold,
             ),
@@ -114,9 +122,9 @@ class _AddUserScreenState extends State<AddUserScreen> {
         ),
       ),
       body: isLoading
-          ? Center(
+          ? const Center(
               child: CircularProgressIndicator(
-                valueColor: AlwaysStoppedAnimation<Color>(Colors.lightBlue!),
+                valueColor: AlwaysStoppedAnimation<Color>(Colors.lightBlue),
               ),
             )
           : SingleChildScrollView(

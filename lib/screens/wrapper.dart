@@ -3,9 +3,9 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:inventory_management/screens/authenticate/authenticate.dart';
-import 'package:inventory_management/screens/home/adminDashboard.dart';
-import 'package:inventory_management/screens/home/managerDashboard.dart';
-import 'package:inventory_management/screens/home/staffDashboard.dart';
+import 'package:inventory_management/screens/home/admindashboard.dart';
+import 'package:inventory_management/screens/home/managerdashboard.dart';
+import 'package:inventory_management/screens/home/staffdashboard.dart';
 import 'package:provider/provider.dart';
 
 class Wrapper extends StatefulWidget {

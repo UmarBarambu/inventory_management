@@ -10,9 +10,9 @@ import 'package:inventory_management/screens/home/activities/add_category.dart';
 import 'package:inventory_management/screens/home/activities/add_product.dart';
 import 'package:inventory_management/screens/home/activities/add_vendor.dart';
 import 'package:inventory_management/screens/home/activities/searchProduct.dart';
-import 'package:inventory_management/screens/home/charts/stockLevel.dart';
-import 'package:inventory_management/screens/home/history/historyScreen.dart';
-import 'package:inventory_management/screens/home/homeScreen/homeScreen.dart';
+import 'package:inventory_management/screens/home/charts/chart.dart';
+import 'package:inventory_management/screens/home/history/history_screen.dart';
+import 'package:inventory_management/screens/home/homeScreen/home_screen.dart';
 import 'package:inventory_management/services/auth.dart';
 
 class Staffdashboard extends StatefulWidget {
@@ -51,7 +51,9 @@ Future<void> _fetchUserDetails() async {
       }
     }
   } catch (e) {
-    print('Error fetching user details: $e');
+    if (kDebugMode) {
+      print('Error fetching user details: $e');
+    }
   }
 }
 
@@ -88,7 +90,7 @@ Future<void> _fetchUserDetails() async {
     case 1:
       return const History(history: [],); // Return the HistoryScreen widget
     case 2:
-      return const Stocklevel(); // Return the ChartScreen widget
+      return const Stock(); // Return the ChartScreen widget
     default:
       return const Center(child: Text('Unknown Screen', style: TextStyle(fontSize: 24)));
   }
@@ -113,7 +115,10 @@ Future<void> _fetchUserDetails() async {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor:  Colors.white,
-      appBar: AppBar(
+      appBar:PreferredSize(
+        preferredSize: const Size.fromHeight(50.0), // Set the height of the AppBar
+        child:
+       AppBar(
         title: Text(
           _getAppBarTitle(_selectedIndex),
           style: const TextStyle(
@@ -145,6 +150,7 @@ Future<void> _fetchUserDetails() async {
           ),
         ],
       ),
+      ),
       drawer: Drawer(
         child: SizedBox(
           width: MediaQuery.of(context).size.width * 0.2, // Set the width to 20% of the screen width
@@ -152,7 +158,7 @@ Future<void> _fetchUserDetails() async {
             padding: EdgeInsets.zero,
             children: [
               DrawerHeader(
-                decoration: BoxDecoration(
+                decoration: const BoxDecoration(
                    color: Colors.lightBlue,
                 ),
                 child: Column(
@@ -207,7 +213,7 @@ Future<void> _fetchUserDetails() async {
               ListTile(
                 leading: const FaIcon(FontAwesomeIcons.box),
                 title: const Text('Add product',
-                 style: const TextStyle(
+                 style:  TextStyle(
                         color: Colors.black,
                         fontSize: 14,
                         fontWeight: FontWeight.bold,
@@ -224,7 +230,7 @@ Future<void> _fetchUserDetails() async {
               ListTile(
                 leading: const Icon(Icons.category),
                 title: const Text('Add category',
-                 style: const TextStyle(
+                 style:  TextStyle(
                         color: Colors.black,
                         fontSize: 14,
                         fontWeight: FontWeight.bold,
@@ -241,7 +247,7 @@ Future<void> _fetchUserDetails() async {
               ListTile(
                 leading: const Icon(Icons.fire_truck_rounded),
                 title: const Text('Add vendor',
-                 style: const TextStyle(
+                 style: TextStyle(
                         color: Colors.black,
                         fontSize: 14,
                         fontWeight: FontWeight.bold,
@@ -258,7 +264,7 @@ Future<void> _fetchUserDetails() async {
               ListTile(
                 leading: const Icon(Icons.settings),
                 title: const Text('Settings',  
-                style: const TextStyle(
+                style:  TextStyle(
                         color: Colors.black,
                         fontSize: 14,
                         fontWeight: FontWeight.bold,
@@ -271,7 +277,7 @@ Future<void> _fetchUserDetails() async {
               ListTile(
                 leading: const Icon(Icons.logout, color: Colors.red,),
                 title: const Text('Logout',  
-                style: const TextStyle(
+                style:  TextStyle(
                         color: Colors.red,
                         fontSize: 14,
                         fontWeight: FontWeight.bold,

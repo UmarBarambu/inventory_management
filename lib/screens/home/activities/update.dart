@@ -2,12 +2,13 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:inventory_management/screens/home/activities/add_category.dart';
 import 'package:inventory_management/screens/home/activities/add_vendor.dart';
+import 'package:inventory_management/services/account_service.dart';
 import 'package:inventory_management/shared/constant.dart'; // Ensure this has textInputDecoration
 
 class UpdateProductScreen extends StatefulWidget {
   final DocumentSnapshot? product;
 
-  const UpdateProductScreen({Key? key, this.product}) : super(key: key);
+  const UpdateProductScreen({super.key, this.product});
 
   @override
   State<UpdateProductScreen> createState() => _UpdateProductScreenState();
@@ -21,9 +22,11 @@ class _UpdateProductScreenState extends State<UpdateProductScreen> {
   int _stock = 0;
   String _selectedCategory = '';
   String _selectedVendor = '';
-
   List<String> _categories = [];
   List<String> _vendors = [];
+
+ double get totalProductValue => _buyingPrice * _stock;
+ final ProductService _productService = ProductService(); 
 
   @override
   void initState() {
@@ -37,7 +40,7 @@ class _UpdateProductScreenState extends State<UpdateProductScreen> {
       _buyingPrice = widget.product!['buyingPrice']?.toDouble() ?? 0.0;
       _stock = widget.product!['stock']?.toInt() ?? 0;
       _selectedCategory = widget.product!['category_name'] ?? '';
-      _selectedVendor = widget.product!['vendorId'] ?? '';
+      _selectedVendor = widget.product!['vendor_name'] ?? '';
     }
   }
 
@@ -100,7 +103,7 @@ class _UpdateProductScreenState extends State<UpdateProductScreen> {
               onPressed: () {
                 Navigator.of(context).pop(); // Close the dialog
               },
-              child: Text('Done'),
+              child: const Text('Done'),
             ),
           ],
         );
@@ -118,42 +121,52 @@ class _UpdateProductScreenState extends State<UpdateProductScreen> {
     });
   }
 
-  Future<void> _saveProduct() async {
-    if (_formKey.currentState!.validate()) {
-      _formKey.currentState!.save();
+ 
 
-      try {
-        if (widget.product != null) {
-          await FirebaseFirestore.instance
-              .collection('products')
-              .doc(widget.product!.id)
-              .update({
-            'name': _productName,
-            'sellingPrice': _sellingPrice,
-            'buyingPrice': _buyingPrice,
-            'stock': _stock,
-            'category_name': _selectedCategory,
-            'vendorId': _selectedVendor,
-          });
-          debugPrint('Product updated successfully');
-        } else {
-          await FirebaseFirestore.instance.collection('products').add({
-            'name': _productName,
-            'sellingPrice': _sellingPrice,
-            'buyingPrice': _buyingPrice,
-            'stock': _stock,
-            'category_name': _selectedCategory,
-            'vendorId': _selectedVendor,
-          });
-          debugPrint('Product added successfully');
-        }
+Future<void> _saveProduct() async {
+  if (_formKey.currentState!.validate()) {
+    _formKey.currentState!.save();
 
-        Navigator.pop(context);
-      } catch (e) {
-        debugPrint('Failed to save product: $e');
+    try {
+      if (widget.product != null) {
+        // Update existing product
+        await FirebaseFirestore.instance
+            .collection('products')
+            .doc(widget.product!.id)
+            .update({
+          'name': _productName,
+          'sellingPrice': _sellingPrice,
+          'buyingPrice': _buyingPrice,
+          'stock': _stock,
+          'category_name': _selectedCategory,
+          'vendor_name': _selectedVendor,
+          'totalProductValue': totalProductValue, // Update this line if necessary
+        });
+        debugPrint('Product updated successfully');
+      } else {
+        // Add new product
+        await FirebaseFirestore.instance.collection('products').add({
+          'name': _productName,
+          'sellingPrice': _sellingPrice,
+          'buyingPrice': _buyingPrice,
+          'stock': _stock,
+          'category_name': _selectedCategory,
+          'vendor_name': _selectedVendor,
+          'totalProductValue': totalProductValue, // Update this line if necessary
+        });
+        debugPrint('Product added successfully');
       }
+
+      // Update the account balance after saving the product
+      await _productService.updateTotalBalance() ;
+
+      // ignore: use_build_context_synchronously
+      Navigator.pop(context);
+    } catch (e) {
+      debugPrint('Failed to save product: $e');
     }
   }
+}
 
   @override
   Widget build(BuildContext context) {
@@ -243,11 +256,11 @@ class _UpdateProductScreenState extends State<UpdateProductScreen> {
               const SizedBox(height: 20),
               ElevatedButton(
                 onPressed: _saveProduct,
-                child: Text(widget.product != null ? 'Update Product' : 'Add Product'),
                  style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.blue, // Set button color to blue
                             foregroundColor: Colors.white,
                  ),
+                child: Text(widget.product != null ? 'Update Product' : 'Add Product'),
               ),
             ],
           ),

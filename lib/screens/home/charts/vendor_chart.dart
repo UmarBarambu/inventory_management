@@ -10,6 +10,8 @@ class Vendorchart extends StatefulWidget {
 class _VendorchartState extends State<Vendorchart> {
   @override
   Widget build(BuildContext context) {
-    return const Scaffold();
+    return const Scaffold(
+     body: Text('Good'),
+    );
   }
 }

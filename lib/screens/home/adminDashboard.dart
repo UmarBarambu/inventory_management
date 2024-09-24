@@ -10,13 +10,14 @@ import 'package:inventory_management/screens/home/activities/add_category.dart';
 import 'package:inventory_management/screens/home/activities/add_product.dart';
 import 'package:inventory_management/screens/home/activities/add_vendor.dart';
 import 'package:inventory_management/screens/home/activities/searchProduct.dart';
+import 'package:inventory_management/screens/home/adminOnly/account.dart';
 import 'package:inventory_management/screens/home/adminOnly/addUser.dart';
 import 'package:inventory_management/screens/home/adminOnly/adminOnUsers.dart';
-import 'package:inventory_management/screens/home/charts/stockLevel.dart';
-import 'package:inventory_management/screens/home/history/historyScreen.dart';
-import 'package:inventory_management/screens/home/homeScreen/homeScreen.dart';
+import 'package:inventory_management/screens/home/charts/chart.dart';
+import 'package:inventory_management/screens/home/history/history_screen.dart';
+import 'package:inventory_management/screens/home/homeScreen/home_screen.dart';
 import 'package:inventory_management/services/auth.dart';
- 
+
 class Admindashboard extends StatefulWidget {
   const Admindashboard({super.key});
 
@@ -30,7 +31,7 @@ class _AdmindashboardState extends State<Admindashboard> {
   File? _profileImage; // Variable to store the picked image
   String _userName = ''; // Variable to store the user's name
   String _roleName = ''; // Variable to store the user's role
-  bool _isRefreshing = false; // Variable to track refresh state
+
 
   @override
   void initState() {
@@ -54,7 +55,9 @@ class _AdmindashboardState extends State<Admindashboard> {
         }
       }
     } catch (e) {
-      print('Error fetching user details: $e');
+      if (kDebugMode) {
+        print('Error fetching user details: $e');
+      }
     }
   }
 
@@ -89,7 +92,7 @@ class _AdmindashboardState extends State<Admindashboard> {
     case 1:
       return const History(history: [],); // Return the HistoryScreen widget
     case 2:
-      return const Stocklevel(); // Return the ChartScreen widget
+      return const Stock(); // Return the ChartScreen widget
     default:
       return const Center(child: Text('Unknown Screen', style: TextStyle(fontSize: 24)));
   }
@@ -113,17 +116,32 @@ class _AdmindashboardState extends State<Admindashboard> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: AppBar(
+      appBar:  PreferredSize(
+        preferredSize: const Size.fromHeight(50.0), // Set the height of the AppBar
+        child:
+      AppBar(
         title: Text(
           _getAppBarTitle(_selectedIndex),
           style: const TextStyle(
             fontSize: 25.0,
             fontWeight: FontWeight.bold,
+            color: Colors.lightBlue,
           ),
         ),
         centerTitle: true,
         backgroundColor: Colors.white,
         actions: [
+          IconButton(
+            icon: const Icon(Icons.account_balance),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const Account(),
+                ),
+              );
+            },
+          ),
           IconButton(
             icon: const Icon(Icons.search),
             onPressed: () {
@@ -136,6 +154,7 @@ class _AdmindashboardState extends State<Admindashboard> {
             },
           ),
         ],
+      ),
       ),
       drawer: Drawer(
         child: SizedBox(
@@ -201,7 +220,7 @@ class _AdmindashboardState extends State<Admindashboard> {
               ListTile(
                 leading: const Icon(Icons.person_add),
                 title: const Text('Add User',
-                 style: const TextStyle(
+                 style:  TextStyle(
                         color: Colors.black,
                         fontSize: 14,
                         fontWeight: FontWeight.bold,
@@ -219,7 +238,7 @@ class _AdmindashboardState extends State<Admindashboard> {
               ListTile(
                 leading: const Icon(Icons.group),
                 title: const Text('Employees',
-                 style: const TextStyle(
+                 style:  TextStyle(
                         color: Colors.black,
                         fontSize: 14,
                         fontWeight: FontWeight.bold,
@@ -236,7 +255,7 @@ class _AdmindashboardState extends State<Admindashboard> {
               ListTile(
                 leading: const FaIcon(FontAwesomeIcons.box),
                 title: const Text('Add product',
-                 style: const TextStyle(
+                 style: TextStyle(
                         color: Colors.black,
                         fontSize: 14,
                         fontWeight: FontWeight.bold,
@@ -253,7 +272,7 @@ class _AdmindashboardState extends State<Admindashboard> {
                 ListTile(
                 leading: const Icon(Icons.fire_truck_rounded),
                 title: const Text('Add vendor',
-                 style: const TextStyle(
+                 style:  TextStyle(
                         color: Colors.black,
                         fontSize: 14,
                         fontWeight: FontWeight.bold,
@@ -270,7 +289,7 @@ class _AdmindashboardState extends State<Admindashboard> {
                 ListTile(
                 leading: const Icon(Icons.category),
                 title: const Text('Add category',
-                 style: const TextStyle(
+                 style: TextStyle(
                         color: Colors.black,
                         fontSize: 14,
                         fontWeight: FontWeight.bold,
@@ -287,7 +306,7 @@ class _AdmindashboardState extends State<Admindashboard> {
                ListTile(
                 leading: const Icon(Icons.settings),
                 title: const Text('Settings',
-                 style: const TextStyle(
+                 style:  TextStyle(
                         color: Colors.black,
                         fontSize: 14,
                         fontWeight: FontWeight.bold,
@@ -300,7 +319,7 @@ class _AdmindashboardState extends State<Admindashboard> {
               ListTile(
                 leading: const Icon(Icons.logout, color: Colors.red),
                 title: const Text('Logout',
-                 style: const TextStyle(
+                 style:  TextStyle(
                         color: Colors.red,
                         fontSize: 14,
                         fontWeight: FontWeight.bold,
