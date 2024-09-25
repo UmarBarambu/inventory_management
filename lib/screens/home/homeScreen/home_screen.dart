@@ -53,69 +53,96 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
-  void _showBottomMenu(BuildContext context, DocumentSnapshot product) {
-    showModalBottomSheet(
-      context: context,
-      builder: (BuildContext context) {
-        return SingleChildScrollView(
-          child: Container(
-            padding: const EdgeInsets.all(16.0),
-            decoration: const BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.vertical(top: Radius.circular(16.0)),
-            ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  product['name'] ?? 'Unnamed Product',
-                  style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                ),
-                const Divider(),
-                ListTile(
-                  leading: const Icon(Icons.folder),
-                  title: const Text('Change Catalog'),
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => EditStockNo(
-                          product: product,
-                          updateHistory: _addToHistory,
-                        ),
-                      ),
-                    );
-                  },
-                ),
-                ListTile(
-                  leading: const Icon(Icons.edit),
-                  title: const Text('Edit'),
-                  onTap: () {
-                    Navigator.pop(context); // Close the modal
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => UpdateProductScreen(product: product),
-                      ),
-                    );
-                  },
-                ),
-                ListTile(
-                  leading: const Icon(Icons.delete),
-                  title: const Text('Delete'),
-                  onTap: () {
-                    Navigator.pop(context); // Close the modal
-                    _deleteProduct(product.id);
-                  },
-                ),
-              ],
-            ),
+ void _showBottomMenu(BuildContext context, DocumentSnapshot product) {
+  showModalBottomSheet(
+    context: context,
+    builder: (BuildContext context) {
+      return SingleChildScrollView(
+        child: Container(
+          padding: const EdgeInsets.all(16.0),
+          decoration: const BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.vertical(top: Radius.circular(16.0)),
           ),
-        );
-      },
-    );
-  }
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                product['name'] ?? 'Unnamed Product',
+                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
+              const Divider(),
+              ListTile(
+                leading: const Icon(Icons.folder),
+                title: const Text('Change Catalog'),
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => EditStockNo(
+                        product: product,
+                        updateHistory: _addToHistory,
+                      ),
+                    ),
+                  );
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.edit),
+                title: const Text('Edit'),
+                onTap: () {
+                  Navigator.pop(context); // Close the modal
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => UpdateProductScreen(product: product),
+                    ),
+                  );
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.delete),
+                title: const Text('Delete'),
+                onTap: () {
+                  Navigator.pop(context); // Close the modal
+                  _confirmDeleteProduct(context, product.id);
+                },
+              ),
+            ],
+          ),
+        ),
+      );
+    },
+  );
+}
+
+void _confirmDeleteProduct(BuildContext context, String productId) {
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        title: const Text('Confirm Delete'),
+        content: const Text('Are you sure you want to delete this product?'),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop(); // Close the dialog
+            },
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () async {
+              Navigator.of(context).pop(); // Close the dialog
+              await _deleteProduct(productId); // Proceed with deletion
+            },
+            child: const Text('Confirm'),
+          ),
+        ],
+      );
+    },
+  );
+}
 
   Future<void> _deleteProduct(String productId) async {
     try {

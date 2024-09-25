@@ -133,7 +133,9 @@ class _EditStockNoState extends State<EditStockNo> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Edit Stock'),
+        title: const Text('Edit Stock',
+         style: TextStyle(fontSize:20, fontWeight: FontWeight.bold),
+         ),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -162,14 +164,18 @@ class _EditStockNoState extends State<EditStockNo> {
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.green,
                   ),
-                  child: const Text('Add Stock'),
+                  child: const Text('Add Stock',
+                   style: TextStyle(color: Colors.white),
+                   ),
                 ),
                 ElevatedButton(
                   onPressed: _deductStock,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.red,
                   ),
-                  child: const Text('Deduct Stock'),
+                  child: const Text('Deduct Stock',
+                  style: TextStyle(color: Colors.white),
+                  ),
                 ),
               ],
             ),

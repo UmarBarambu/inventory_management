@@ -21,8 +21,17 @@ class _StockState extends State<Stock> {
             TabBar(
               labelPadding: EdgeInsets.only(bottom: 0), // Adjust this value as needed
               indicatorPadding: EdgeInsets.only(bottom: 0), // Moves the indicator up (Adjust the value here)
-              labelStyle: TextStyle(fontSize: 12), // Reduce font size for selected tab
-              unselectedLabelStyle: TextStyle(fontSize: 15), // Reduce font size for unselected tabs
+              labelStyle: TextStyle(
+                fontSize: 15, // Font size for selected tab
+                fontWeight: FontWeight.bold, // Make the text bold
+                color: Colors.black, // Set color for selected tab text to black
+              ),
+              unselectedLabelStyle: TextStyle(
+                fontSize: 12, // Font size for unselected tabs
+                fontWeight: FontWeight.w500,
+                color: Colors.black87, // Set color for unselected tab text to black
+              ),
+              indicatorColor: Colors.lightBlue, // Set the indicator color to light blue
               tabs: [
                 Tab(text: 'Stock Levels'),
                 Tab(text: 'Stock Value'),
