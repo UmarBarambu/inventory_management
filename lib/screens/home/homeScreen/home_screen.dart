@@ -1,10 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:inventory_management/screens/home/activities/add_product.dart';
 import 'package:inventory_management/screens/home/activities/edit_only_stock.dart';
 import 'package:inventory_management/screens/home/activities/update.dart';
-import 'package:inventory_management/screens/home/details/productDetails.dart'; // Ensure this import is correct
+import 'package:inventory_management/screens/home/details/productDetails.dart';
+import 'package:inventory_management/screens/home/generate_invoice/invoice.dart'; // Ensure this import is correct
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -15,42 +15,13 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  final FirebaseAuth _auth = FirebaseAuth.instance;
+  
 
-  String? userRole; // Variable to store the user's role
-  bool isLoading = true; // Indicates if user role is being fetched
 
   @override
   void initState() {
     super.initState();
-    _getUserRole(); // Fetch user role when screen initializes
-  }
-
-  Future<void> _getUserRole() async {
-    try {
-      User? user = _auth.currentUser;
-      if (user != null) {
-        // Assuming user roles are stored in the Firestore under a 'users' collection
-        DocumentSnapshot userDoc =
-            await _firestore.collection('users').doc(user.uid).get();
-        setState(() {
-          userRole = userDoc['role']; // Fetch role from Firestore
-          isLoading = false; // Role fetched, stop loading
-        });
-      } else {
-        setState(() {
-          isLoading = false; // No user logged in, stop loading
-        });
-      }
-    } catch (e) {
-      debugPrint('Failed to fetch user role: $e');
-      setState(() {
-        isLoading = false; // Error occurred, stop loading
-      });
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Failed to fetch user role')),
-      );
-    }
+   
   }
 
   Future<void> _addToHistory(
@@ -250,6 +221,36 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
+ // Method to delete the category
+Future<void> _deleteCategory(BuildContext context, String categoryId, String categoryName) async {
+  try {
+    // Check if the category has associated products
+    QuerySnapshot productsSnapshot = await _firestore
+        .collection('products')
+        .where('category_name', isEqualTo: categoryName)
+        .get();
+
+    if (productsSnapshot.docs.isNotEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Cannot delete category with existing products.')),
+      );
+      return;
+    }
+
+    // Proceed with deletion
+    await _firestore.collection('categories').doc(categoryId).delete();
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Category deleted successfully')),
+    );
+  } catch (e) {
+    debugPrint('Failed to delete category: $e');
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Failed to delete category')),
+    );
+  }
+}
+
   Future<void> _deleteProduct(BuildContext context, String productId) async {
     try {
       await _firestore.collection('products').doc(productId).delete();
@@ -269,28 +270,6 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // Show a loading indicator while fetching the user role
-    if (isLoading) {
-      return Scaffold(
-        appBar: AppBar(
-          backgroundColor: Colors.white,
-          centerTitle: true,
-          title: const Text(
-            'Home',
-            style: TextStyle(
-              fontSize: 25.0,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-        ),
-        body: const Center(
-          child: CircularProgressIndicator(
-            valueColor: AlwaysStoppedAnimation<Color>(Colors.lightBlue),
-          ),
-        ),
-      );
-    }
-
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.white,
@@ -330,24 +309,22 @@ class _HomeScreenState extends State<HomeScreen> {
               return Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Category Header with Edit Icon (Visible only to Admin and Manager)
                   Container(
                     width: double.infinity,
                     color: Colors.grey[100],
-                    padding: const EdgeInsets.symmetric(
-                        vertical: 12.0, horizontal: 8.0),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
+                    padding: const EdgeInsets.symmetric(vertical: 12.0, horizontal: 8.0),
+                   child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween, // Use spaceBetween to push icons to the end
+                        children: [
+                          Expanded(
+                            child: Text(
                           categoryName,
                           style: const TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
-                        // Show Edit Icon only for Admin and Manager
-                        if (userRole == 'admin' || userRole == 'manager')
+                         ),
                           IconButton(
                             icon: const Icon(Icons.edit,
                                 size: 20.0, color: Colors.black),
@@ -356,6 +333,12 @@ class _HomeScreenState extends State<HomeScreen> {
                               _renameCategory(context, category.id, categoryName);
                             },
                           ),
+                           IconButton(
+                                icon: const Icon(Icons.delete, size: 20.0, color: Colors.red),
+                              onPressed: () {
+                                _deleteCategory(context, category.id, categoryName);
+                               },
+                            ),
                       ],
                     ),
                   ),
@@ -416,9 +399,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                         ),
                                       ),
                                       Expanded(
-                                        child: (userRole == 'admin' ||
-                                                userRole == 'manager')
-                                            ? TextButton(
+                                        child: TextButton(
                                                 onPressed: () {
                                                   // Navigate to the ProductDetails screen
                                                   Navigator.push(
@@ -440,14 +421,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                                   maxLines: 1,
                                                 ),
                                               )
-                                            : Text(
-                                                productName,
-                                                style: const TextStyle(
-                                                    fontSize: 14,
-                                                    fontWeight: FontWeight.w500),
-                                                overflow: TextOverflow.ellipsis,
-                                                maxLines: 1,
-                                              ),
+                                            
                                       ),
                                       SizedBox(
                                         width: 80,
@@ -459,8 +433,6 @@ class _HomeScreenState extends State<HomeScreen> {
                                               fontWeight: FontWeight.w500),
                                         ),
                                       ),
-                                      // Conditionally show the icon based on user role
-                                      if (userRole == 'admin' || userRole == 'manager')
                                         IconButton(
                                           icon: const Icon(Icons.more_vert),
                                           onPressed: () =>
@@ -487,23 +459,44 @@ class _HomeScreenState extends State<HomeScreen> {
           );
       },
     ),
-    // Conditionally show the FAB based on user role
-    floatingActionButton:  FloatingActionButton(
-            onPressed: () {
-              Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (context) => const AddProduct(),
-                ),
-              );
-            },
-            backgroundColor: Colors.blue,
-            child: const Icon(
-              Icons.add,
-              color: Colors.white,
-              size: 35,
-            ),
-          )
-      
+   
+    floatingActionButton: Column(
+  mainAxisAlignment: MainAxisAlignment.end,
+  children: [
+    FloatingActionButton(
+      onPressed: () {
+        Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (context) => const InvoiceScreen(),
+          ),
+        );
+      },
+      backgroundColor: Colors.blue,
+      child: const Icon(
+        Icons.trolley,
+        color: Colors.white,
+        size: 35,
+      ),
+    ),
+    const SizedBox(height: 16), // Space between the buttons
+    FloatingActionButton(
+      onPressed: () {
+        Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (context) => const AddProduct(),
+          ),
+        );
+      },
+      backgroundColor: Colors.blue,
+      child: const Icon(
+        Icons.add,
+        color: Colors.white,
+        size: 35,
+      ),
+    ),
+  ],
+),
+
   );
 }
 }

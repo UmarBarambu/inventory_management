@@ -1,5 +1,4 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:inventory_management/screens/home/activities/add_product.dart';
 import 'package:inventory_management/screens/home/activities/edit_only_stock.dart';
@@ -16,42 +15,18 @@ class ProductSearchScreen extends StatefulWidget {
 
 class _ProductSearchScreenState extends State<ProductSearchScreen> {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  final FirebaseAuth _auth = FirebaseAuth.instance;
+ 
 
   String searchQuery = '';
-  String? userRole; // Variable to store the user's role
-  bool isLoading = true; // Indicates if user role is being fetched
-
+ 
+ 
   @override
   void initState() {
     super.initState();
-    _getUserRole(); // Fetch user role when screen initializes
+   
   }
 
-  Future<void> _getUserRole() async {
-    try {
-      User? user = _auth.currentUser;
-      if (user != null) {
-        // Assuming user roles are stored in the Firestore under a 'users' collection
-        DocumentSnapshot userDoc =
-            await _firestore.collection('users').doc(user.uid).get();
-        setState(() {
-          userRole = userDoc['role']; // Fetch role from Firestore
-          isLoading = false; // Role fetched, stop loading
-        });
-      } else {
-        setState(() {
-          isLoading = false; // No user logged in, stop loading
-        });
-      }
-    } catch (e) {
-      debugPrint('Failed to fetch user role: $e');
-      setState(() {
-        isLoading = false; // Error occurred, stop loading
-      });
-    }
-  }
-
+ 
   // Function to add a history record to Firestore
   Future<void> _addToHistory(
       String productName, int amount, String action, DateTime date) async {
@@ -174,28 +149,7 @@ class _ProductSearchScreenState extends State<ProductSearchScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // Show a loading indicator while fetching the user role
-    if (isLoading) {
-      return Scaffold(
-        appBar: AppBar(
-          backgroundColor: Colors.white,
-          centerTitle: true,
-          title: const Text(
-            'Product Search',
-            style: TextStyle(
-              fontSize: 25.0,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-        ),
-        body: const Center(
-          child: CircularProgressIndicator(
-            valueColor: AlwaysStoppedAnimation<Color>(Colors.lightBlue),
-          ),
-        ),
-      );
-    }
-
+ 
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.white,
@@ -301,9 +255,7 @@ class _ProductSearchScreenState extends State<ProductSearchScreen> {
                             ),
                           ),
                           Expanded(
-                            child: (userRole == 'admin' ||
-                                    userRole == 'manager')
-                                ? TextButton(
+                            child:  TextButton(
                                     onPressed: () {
                                       // Navigate to the ProductDetails screen
                                       Navigator.push(
@@ -325,14 +277,7 @@ class _ProductSearchScreenState extends State<ProductSearchScreen> {
                                       maxLines: 1,
                                     ),
                                   )
-                                : Text(
-                                    productName,
-                                    style: const TextStyle(
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.w500),
-                                    overflow: TextOverflow.ellipsis,
-                                    maxLines: 1,
-                                  ),
+                               
                           ),
                           SizedBox(
                             width: 80,
@@ -344,8 +289,6 @@ class _ProductSearchScreenState extends State<ProductSearchScreen> {
                                   fontWeight: FontWeight.w500),
                             ),
                           ),
-                          // Conditionally show the icon based on user role
-                          if (userRole == 'admin' || userRole == 'manager')
                             IconButton(
                               icon: const Icon(Icons.more_vert),
                               onPressed: () => _showBottomMenu(context, product),

@@ -139,7 +139,7 @@ class _EditStockNoState extends State<EditStockNo> {
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
-        child: Column(
+        child: Column( 
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Text(
